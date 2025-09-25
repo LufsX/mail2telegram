@@ -1,6 +1,6 @@
-import tmaHTML from './tma.html';
+import tmaHTML from "./tma.html";
 
-export * from './api';
-export * from './const';
-export * from './telegram';
+export * from "./api";
+export * from "./const";
+export * from "./telegram";
 export { tmaHTML };
