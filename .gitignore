@@ -148,3 +148,4 @@ wrangler.toml
 .idea
 .wrangler
 example
+build
