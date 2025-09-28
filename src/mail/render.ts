@@ -7,13 +7,19 @@ export interface EmailDetailParams {
   text: string;
   reply_markup: Telegram.InlineKeyboardMarkup;
   link_preview_options: Telegram.LinkPreviewOptions;
+  parse_mode?: Telegram.ParseMode;
+}
+
+function escapeMarkdownV2(text: string): string {
+  return text.replace(/\\/g, "\\\\").replace(/([_\*\[\]\(\)~`>#+\-=|{}.!])/g, "\\$1");
 }
 
 export type EmailRender = (mail: EmailCache, env: Environment) => Promise<EmailDetailParams>;
 
 export async function renderEmailListMode(mail: EmailCache, env: Environment): Promise<EmailDetailParams> {
   const { DEBUG, OPENAI_API_KEY, DOMAIN } = env;
-  const text = `${mail.subject}\n\n-----------\nFrom\t:\t${mail.from}\nTo\t\t:\t${mail.to}`;
+  const subject = mail.subject && mail.subject.length > 0 ? mail.subject : "无标题";
+  const text = `*${escapeMarkdownV2(subject)}*\n\n────────────\n*From*: ${escapeMarkdownV2(mail.from)}\n*To*: ${escapeMarkdownV2(mail.to)}`;
   const keyboard: Telegram.InlineKeyboardButton[] = [
     {
       text: "显示正文",
@@ -52,10 +58,11 @@ export async function renderEmailListMode(mail: EmailCache, env: Environment): P
     link_preview_options: {
       is_disabled: true,
     },
+    parse_mode: "MarkdownV2",
   };
 }
 
-function renderEmailDetail(text: string | undefined | null, id: string): EmailDetailParams {
+function renderEmailDetail(text: string | undefined | null, id: string, parseMode?: Telegram.ParseMode): EmailDetailParams {
   return {
     text: text || "无正文内容",
     reply_markup: {
@@ -75,12 +82,18 @@ function renderEmailDetail(text: string | undefined | null, id: string): EmailDe
     link_preview_options: {
       is_disabled: true,
     },
+    parse_mode: parseMode,
   };
 }
 
 // eslint-disable-next-line unused-imports/no-unused-vars
 export async function renderEmailPreviewMode(mail: EmailCache, env: Environment): Promise<EmailDetailParams> {
-  return renderEmailDetail(mail.text?.substring(0, 4096), mail.id);
+  const subject = mail.subject && mail.subject.length > 0 ? mail.subject : "无标题";
+  const content = mail.text?.substring(0, 4096);
+  const escapedSubject = `*${escapeMarkdownV2(subject)}*`;
+  const escapedContent = content ? escapeMarkdownV2(content) : undefined;
+  const text = escapedContent ? `${escapedSubject}\n\n${escapedContent}` : escapedSubject;
+  return renderEmailDetail(text, mail.id, "MarkdownV2");
 }
 
 export async function renderEmailSummaryMode(mail: EmailCache, env: Environment): Promise<EmailDetailParams> {
