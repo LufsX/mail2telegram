@@ -89,7 +89,7 @@ export async function renderEmailSummaryMode(mail: EmailCache, env: Environment)
   endpoint = endpoint || "https://api.openai.com/v1/chat/completions";
   model = model || "gpt-4o-mini";
   targetLang = targetLang || "english";
-  const prompt = `使用一百个词以内的简洁语言，保留关键信息前提下用 ${targetLang} 语言总结以下邮件内容\n\n${mail.text}`;
+  const prompt = `使用七十个词以内的简洁语言，保留关键信息，用 ${targetLang} 语言总结以下邮件内容，总结内容可以分行显示，若无实际内容可以总结，返回简短后的原文\n\n${mail.text}`;
   req.text = await sendOpenAIRequest(key ?? "", endpoint, model, prompt);
   return req;
 }
