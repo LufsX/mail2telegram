@@ -19,7 +19,7 @@ export type EmailRender = (mail: EmailCache, env: Environment) => Promise<EmailD
 export async function renderEmailListMode(mail: EmailCache, env: Environment): Promise<EmailDetailParams> {
   const { DEBUG, OPENAI_API_KEY, DOMAIN } = env;
   const subject = mail.subject && mail.subject.length > 0 ? mail.subject : "无标题";
-  const text = `*${escapeMarkdownV2(subject)}*\n\n────────────\n*From*: ${escapeMarkdownV2(mail.from)}\n*To*: ${escapeMarkdownV2(mail.to)}`;
+  const text = `*${escapeMarkdownV2(subject)}*\n\n────────────\nFrom: \`${escapeMarkdownV2(mail.from)}\`\nTo: \`${escapeMarkdownV2(mail.to)}\``;
   const keyboard: Telegram.InlineKeyboardButton[] = [
     {
       text: "显示正文",
