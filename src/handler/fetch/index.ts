@@ -5,6 +5,7 @@ import { validate } from "@tma.js/init-data-node/web";
 import { json, Router } from "itty-router";
 import { Dao } from "../../db";
 import { createTelegramBotAPI, telegramCommands, telegramWebhookHandler, tmaHTML } from "../../telegram";
+import { buildHtmlFallbackFromText, buildHtmlPreview, buildMailMetadata, buildPlainPreview, stripHtmlTags } from "./templates";
 
 class HTTPError extends Error {
   readonly status: number;
@@ -152,16 +153,26 @@ function createRouter(env: Environment): RouterType {
 
   router.get("/email/:id", async (req: IRequest): Promise<Response> => {
     const id = req.params.id;
-    const mode = req.query.mode || "text";
+    const mode = (req.query?.mode as string | undefined)?.toLowerCase() ?? "text";
     const value = await dao.loadMailCache(id);
-    let text = value?.text || "";
-    let contentType = "text/plain; charset=utf-8";
-    if (mode === "html") {
-      text = value?.html || "";
-      contentType = "text/html; charset=utf-8";
+
+    if (!value) {
+      throw new HTTPError(404, "Email not found");
     }
+
+    const metadata = buildMailMetadata(value);
+
+    if (mode === "html") {
+      const html = buildHtmlPreview(metadata, value.html ?? buildHtmlFallbackFromText(value.text ?? ""));
+      return new Response(html, {
+        headers: { "content-type": "text/html; charset=utf-8" },
+      });
+    }
+
+    const plainTextBody = value.text ?? stripHtmlTags(value.html ?? "");
+    const text = buildPlainPreview(metadata, plainTextBody);
     return new Response(text, {
-      headers: { "content-type": contentType },
+      headers: { "content-type": "text/plain; charset=utf-8" },
     });
   });
 
