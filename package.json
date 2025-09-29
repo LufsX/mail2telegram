@@ -40,6 +40,6 @@
     "telegram-bot-api-types": "9.2.0",
     "tsx": "4.20.5",
     "typescript": "5.9.2",
-    "wrangler": "^4.40.0"
+    "wrangler": "^4.40.2"
   }
 }
