@@ -1,5 +1,6 @@
 import type * as Telegram from "telegram-bot-api-types";
 import type { EmailCache, Environment } from "../types";
+import { Dao } from "../db";
 import { checkAddressStatus } from "./check";
 import { sendOpenAIRequest } from "./openai";
 
@@ -97,13 +98,35 @@ export async function renderEmailPreviewMode(mail: EmailCache, env: Environment)
 }
 
 export async function renderEmailSummaryMode(mail: EmailCache, env: Environment): Promise<EmailDetailParams> {
-  let { OPENAI_API_KEY: key, OPENAI_COMPLETIONS_API: endpoint, OPENAI_CHAT_MODEL: model, SUMMARY_TARGET_LANG: targetLang } = env;
+  const { OPENAI_API_KEY: key, OPENAI_COMPLETIONS_API: endpointRaw, OPENAI_CHAT_MODEL: modelRaw, SUMMARY_TARGET_LANG: targetLangRaw, MAIL_TTL: mailTtlRaw, DB } = env;
+  const endpoint = endpointRaw || "https://api.openai.com/v1/chat/completions";
+  const model = modelRaw || "gpt-4o-mini";
+  const targetLang = (targetLangRaw || "english").trim();
+  const cacheLang = targetLang.toLowerCase();
+  const ttl = Number.parseInt(mailTtlRaw || "", 10) || 60 * 60 * 24;
   const req = renderEmailDetail("", mail.id);
-  endpoint = endpoint || "https://api.openai.com/v1/chat/completions";
-  model = model || "gpt-4o-mini";
-  targetLang = targetLang || "english";
-  const prompt = `使用七十个词以内的简洁语言，保留关键信息，用 ${targetLang} 语言总结以下邮件内容，总结内容可以分行显示，若无实际内容可以总结，返回简短后的原文\n\n${mail.text}`;
-  req.text = await sendOpenAIRequest(key ?? "", endpoint, model, prompt);
+
+  try {
+    const dao = new Dao(DB);
+    const cachedSummary = await dao.loadMailSummary(mail.id, cacheLang);
+    if (cachedSummary) {
+      req.text = cachedSummary;
+      return req;
+    }
+
+    const prompt = `使用七十个词以内的简洁语言，保留关键信息，用 ${targetLang} 语言总结以下邮件内容，总结内容可以分行显示，若无实际内容可以总结，返回简短后的原文\n\n${mail.text}`;
+    const summary = (await sendOpenAIRequest(key ?? "", endpoint, model, prompt)).trim();
+    if (summary) {
+      await dao.saveMailSummary(mail.id, cacheLang, summary, ttl);
+      req.text = summary;
+    } else {
+      req.text = "AI 摘要生成失败";
+    }
+  } catch (e) {
+    console.error(e);
+    req.text = "AI 摘要生成失败";
+  }
+
   return req;
 }
 

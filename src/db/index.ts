@@ -13,6 +13,9 @@ export class Dao {
     this.removeAddress = this.removeAddress.bind(this);
     this.loadMailStatus = this.loadMailStatus.bind(this);
     this.loadMailCache = this.loadMailCache.bind(this);
+    this.saveMailCache = this.saveMailCache.bind(this);
+    this.loadMailSummary = this.loadMailSummary.bind(this);
+    this.saveMailSummary = this.saveMailSummary.bind(this);
   }
 
   async loadArrayFromDB(key: AddressListStoreKey): Promise<string[]> {
@@ -76,6 +79,29 @@ export class Dao {
 
   async saveMailCache(id: string, cache: EmailCache, ttl?: number): Promise<void> {
     await this.db.put(id, JSON.stringify(cache), { expirationTtl: ttl });
+  }
+
+  private buildMailSummaryKey(id: string, lang?: string): string {
+    const normalizedLang = (lang || "default").toLowerCase();
+    return `MailSummary:${normalizedLang}:${id}`;
+  }
+
+  async loadMailSummary(id: string, lang?: string): Promise<string | null> {
+    try {
+      return await this.db.get(this.buildMailSummaryKey(id, lang));
+    } catch (e) {
+      console.error(e);
+    }
+    return null;
+  }
+
+  async saveMailSummary(id: string, lang: string | undefined, summary: string, ttl?: number): Promise<void> {
+    const key = this.buildMailSummaryKey(id, lang);
+    if (ttl && ttl > 0) {
+      await this.db.put(key, summary, { expirationTtl: ttl });
+    } else {
+      await this.db.put(key, summary);
+    }
   }
 
   async telegramIDToMailID(id: string): Promise<string | null> {
