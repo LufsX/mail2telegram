@@ -51,103 +51,88 @@ export function buildHtmlPreview(metadata: MailPreviewMetadata, bodyHtml: string
   <meta name="x-mail-subject" content="${metaSubject}" />
   <title>${safeSubject}</title>
   <style>
-    :root {
-      color-scheme: light dark;
-    }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
       margin: 0;
-      padding: 32px 16px;
-      background: #f5f7fa;
-      color: #1f2933;
+      padding: 24px 16px;
+      background: #fafafa;
+      color: #222;
+      line-height: 1.6;
     }
     .container {
-      max-width: 960px;
+      max-width: 840px;
       margin: 0 auto;
-      background: #ffffff;
-      padding: 32px 28px 0;
-      border-radius: 16px;
-      box-shadow: 0 20px 45px rgba(15, 23, 42, 0.15);
+      background: #fff;
+      padding: 32px;
+      border: 1px solid #e5e5e5;
       overflow: hidden;
     }
     .meta-stack {
-      display: flex;
-      flex-direction: column;
-      border-radius: 12px;
-      border: 1px solid rgba(226, 232, 240, 0.8);
-      background: rgba(248, 250, 252, 0.55);
-      overflow: hidden;
+      border-top: 1px solid #e5e5e5;
+      border-bottom: 1px solid #e5e5e5;
+      margin-bottom: 40px;
     }
     .meta-row {
-      padding: 12px 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
+      padding: 14px 0;
+      display: grid;
+      grid-template-columns: 70px 1fr;
+      align-items: baseline;
+      border-bottom: 1px solid #f5f5f5;
     }
-    .meta-row + .meta-row {
-      border-top: 1px solid rgba(226, 232, 240, 0.8);
+    .meta-row:last-child {
+      border-bottom: none;
     }
     .label {
-      font-size: 0.72rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: #94a3b8;
+      font-size: 0.8125rem;
+      color: #666;
+      font-weight: 500;
     }
     .value {
-      font-size: 0.95rem;
-      font-weight: 500;
-      color: #475569;
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 0.875rem;
+      color: #333;
       word-break: break-all;
+      letter-spacing: -0.01em;
     }
     h1.subject {
-      margin: 36px auto 16px;
-      font-size: 1.5rem;
+      margin: 0 0 40px;
+      font-size: 1.625rem;
       font-weight: 600;
-      text-align: center;
-      color: #0f172a;
-      line-height: 1.35;
+      color: #111;
+      line-height: 1.4;
       word-break: break-word;
+      letter-spacing: -0.02em;
     }
     .divider-with-button {
       position: relative;
-      margin: 0 0 32px;
+      margin-bottom: 24px;
     }
     hr.subject-divider {
-      width: 100%;
-      margin: 0;
       border: none;
-      border-top: 1px solid #e2e8f0;
+      border-top: 1px solid #e5e5e5;
+      margin: 0;
     }
     button#download-btn {
       position: absolute;
       top: 50%;
       right: 0;
       transform: translateY(-50%);
-      padding: 6px 14px;
-      border-radius: 9999px;
-      border: none;
-      background: #3b82f6;
-      color: #fff;
-      font-size: 0.85rem;
+      padding: 6px 16px;
+      border: 1px solid #ddd;
+      background: #fff;
+      color: #333;
+      font-size: 0.875rem;
       cursor: pointer;
-      box-shadow: 0 10px 24px rgba(59, 130, 246, 0.25);
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
+      transition: border-color 0.2s;
     }
     button#download-btn:hover {
-      transform: translateY(-50%) scale(1.02);
-      box-shadow: 0 14px 32px rgba(59, 130, 246, 0.35);
-    }
-    button#download-btn:active {
-      transform: translateY(-50%) scale(0.98);
+      border-color: #999;
     }
     .content-wrapper {
-      display: flex;
-      justify-content: center;
+      margin: 0 -32px 0;
+      padding-bottom: 0;
       overflow-x: auto;
-  margin: 0 -28px 0;
-  padding-bottom: 0;
       scrollbar-width: none;
-      -ms-overflow-style: none;
     }
     .content-wrapper::-webkit-scrollbar {
       display: none;
@@ -155,26 +140,22 @@ export function buildHtmlPreview(metadata: MailPreviewMetadata, bodyHtml: string
     iframe#mail-frame {
       width: 100%;
       border: none;
-      border-radius: 0 0 16px 16px;
       background: transparent;
       display: block;
-      margin: 0;
-      overflow: auto;
     }
     .plain-text-body {
       white-space: pre-wrap;
-      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-      font-size: 0.95rem;
-      line-height: 1.6;
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 0.875rem;
+      line-height: 1.7;
       margin: 0;
-      padding: 24px;
-      background: #f8fafc;
-      min-height: 100%;
+      padding: 24px 32px;
+      color: #333;
     }
     .empty {
-      color: #94a3b8;
+      color: #999;
       font-style: italic;
-      padding: 24px;
+      padding: 24px 32px;
       text-align: center;
     }
   </style>
@@ -183,18 +164,18 @@ export function buildHtmlPreview(metadata: MailPreviewMetadata, bodyHtml: string
   <div class="container">
     <section class="meta-stack">
       <div class="meta-row">
-        <span class="label">发件邮箱</span>
+        <span class="label">发件邮箱:</span>
         <span class="value">${fromEmail}</span>
       </div>
       <div class="meta-row">
-        <span class="label">收件邮箱</span>
+        <span class="label">收件邮箱:</span>
         <span class="value">${toEmail}</span>
       </div>
     </section>
     <h1 class="subject">${safeSubject}</h1>
-    <div class="divider-with-button" data-download-exclude="true">
+    <div class="divider-with-button">
       <hr class="subject-divider" />
-      <button id="download-btn" type="button">下载 HTML</button>
+      <button id="download-btn" type="button" data-download-exclude="true">下载 HTML</button>
     </div>
     <div class="content-wrapper">
       <iframe id="mail-frame" title="邮件正文预览" srcdoc="${iframeContent}"></iframe>
