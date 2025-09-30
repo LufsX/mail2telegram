@@ -25,13 +25,15 @@ function handleOpenTMACommand(mode: string, text: string | null, env: Environmen
     };
 
     if (msg.chat.type === "private") {
+      // 使用 func 参数来区分邮件列表和地址管理
+      const urlParam = mode === "mails" ? `func=${mode}` : `func=list&mode=${mode}`;
       params.reply_markup = {
         inline_keyboard: [
           [
             {
-              text: "Open Manager",
+              text: mode === "mails" ? "Open Mail List" : "Open Manager",
               web_app: {
-                url: `https://${DOMAIN}/tma?mode=${mode}`,
+                url: `https://${DOMAIN}/tma?${urlParam}`,
               },
             },
           ],
@@ -101,6 +103,7 @@ async function telegramCommandHandler(message: Telegram.Message, env: Environmen
   const handlers: CommandHandlerGroup = {
     id: handleIDCommand(env),
     start: handleIDCommand(env),
+    mails: handleOpenTMACommand("mails", null, env),
     test: handleOpenTMACommand("test", null, env),
     white: handleOpenTMACommand("white", null, env),
     block: handleOpenTMACommand("block", null, env),

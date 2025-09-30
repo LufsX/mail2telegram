@@ -135,6 +135,21 @@ function createRouter(env: Environment): RouterType {
     return { block, white };
   });
 
+  router.get("/api/mails/list", auth, async (req: IRequest): Promise<any> => {
+    const limit = parseInt((req.query?.limit as string) || "50");
+    const cursor = req.query?.cursor as string | undefined;
+    return await dao.listMails(limit, cursor);
+  });
+
+  router.get("/api/mails/:id", auth, async (req: IRequest): Promise<any> => {
+    const id = req.params.id;
+    const mail = await dao.loadMailCache(id);
+    if (!mail) {
+      throw new HTTPError(404, "Email not found");
+    }
+    return mail;
+  });
+
   /// Webhook
 
   router.post("/telegram/:token/webhook", async (req: IRequest): Promise<any> => {

@@ -111,6 +111,34 @@ export class Dao {
   async saveTelegramIDToMailID(id: string, mailID: string, ttl?: number): Promise<void> {
     await this.db.put(`TelegramID2MailID:${id}`, mailID, { expirationTtl: ttl });
   }
+
+  async listMails(limit: number = 50, cursor?: string): Promise<{ mails: EmailCache[]; cursor?: string }> {
+    const list = await this.db.list({ prefix: "", limit, cursor });
+    const mails: EmailCache[] = [];
+
+    for (const key of list.keys) {
+      // 只获取邮件缓存，排除其他类型的键
+      if (key.name.includes(":") || key.name.includes("_LIST") || key.name.startsWith("TelegramID2MailID:") || key.name.startsWith("MailSummary:")) {
+        continue;
+      }
+      try {
+        const raw = await this.db.get(key.name);
+        if (raw) {
+          const cache = JSON.parse(raw) as EmailCache;
+          if (cache.id && cache.from && cache.to) {
+            mails.push(cache);
+          }
+        }
+      } catch (e) {
+        console.error(`Failed to parse mail ${key.name}:`, e);
+      }
+    }
+
+    return {
+      mails,
+      cursor: list.list_complete ? undefined : list.cursor,
+    };
+  }
 }
 
 export function loadArrayFromRaw(raw: string | null): string[] {

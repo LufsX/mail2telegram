@@ -1,138 +1,645 @@
-<!doctype html>
-<html lang="zh">
+<!DOCTYPE html>
+<html lang="zh-cn">
   <head>
     <meta charset="UTF-8" />
-    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>mail2telegram</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-    <link href="https://unpkg.com/boltcss/bolt.min.css" rel="stylesheet" />
     <style>
+      * {
+        box-sizing: border-box;
+      }
+
       body {
-        max-width: 600px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+        margin: 0;
+        padding: 16px;
+        background: #fafafa;
+        color: #222;
+        line-height: 1.6;
+      }
+
+      .container {
+        max-width: 840px;
         margin: 0 auto;
-        padding: 20px;
+        background: #fff;
+        border: 1px solid #e5e5e5;
+        overflow: hidden;
       }
 
-      table {
-        width: 100%;
+      .section-header {
+        padding: 24px 24px 16px;
+        border-bottom: 1px solid #e5e5e5;
+        background: #fff;
       }
 
-      th,
-      td {
-        text-align: left;
+      .section-header h3 {
+        margin: 0;
+        font-size: 1.375rem;
+        font-weight: 600;
+        color: #111;
+        letter-spacing: -0.02em;
       }
 
-      th:last-child,
-      td:last-child {
-        width: 80px;
-        text-align: center;
+      .section-content {
+        padding: 24px;
       }
 
+      .tip-message {
+        padding: 12px 16px;
+        margin: 0 0 16px;
+        background: #fff3cd;
+        border: 1px solid #ffc107;
+        border-radius: 4px;
+        color: #856404;
+        font-size: 0.875rem;
+      }
+
+      .tip-message.error {
+        background: #f8d7da;
+        border-color: #dc3545;
+        color: #721c24;
+      }
+
+      /* Buttons */
       button {
-        padding: 5px 10px;
-        min-width: 80px;
+        padding: 8px 16px;
+        border: 1px solid #ddd;
+        background: #fff;
+        color: #333;
+        font-size: 0.875rem;
+        font-family: inherit;
+        cursor: pointer;
+        transition: all 0.2s;
+        border-radius: 4px;
+        font-weight: 500;
       }
 
-      .growContainer {
+      button:hover {
+        border-color: #999;
+        background: #f9f9f9;
+      }
+
+      button:active {
+        background: #f0f0f0;
+      }
+
+      button.primary {
+        background: #0088cc;
+        color: #fff;
+        border-color: #0088cc;
+      }
+
+      button.primary:hover {
+        background: #006699;
+        border-color: #006699;
+      }
+
+      button.danger {
+        color: #dc3545;
+        border-color: #dc3545;
+      }
+
+      button.danger:hover {
+        background: #dc3545;
+        color: #fff;
+      }
+
+      button.full-width {
+        width: 100%;
+        margin-top: 16px;
+      }
+
+      /* Input & Select */
+      input[type="text"],
+      input[type="email"],
+      select,
+      textarea {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 0.875rem;
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        color: #333;
+        background: #fff;
+        transition: border-color 0.2s;
+      }
+
+      input:focus,
+      select:focus,
+      textarea:focus {
+        outline: none;
+        border-color: #0088cc;
+      }
+
+      textarea {
+        min-height: 100px;
+        resize: vertical;
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        line-height: 1.5;
+      }
+
+      /* Mail List Table */
+      .mail-list-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 16px;
+      }
+
+      .mail-list-table thead {
+        border-bottom: 2px solid #e5e5e5;
+      }
+
+      .mail-list-table th {
+        padding: 12px 16px;
+        text-align: left;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: #666;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .mail-list-table td {
+        padding: 16px;
+        border-bottom: 1px solid #f5f5f5;
+        font-size: 0.875rem;
+      }
+
+      .mail-list-table tr:hover {
+        background: #fafafa;
+      }
+
+      .mail-list-table .subject-cell {
+        color: #333;
+        font-weight: 500;
+        word-break: break-word;
+        line-height: 1.5;
+      }
+
+      .mail-list-table .action-cell {
+        text-align: right;
+        white-space: nowrap;
+        vertical-align: top;
+        width: 80px;
+      }
+
+      .mail-list-table th.action-cell {
+        text-align: right;
+      }
+
+      /* Address List */
+      .address-input-row {
         display: flex;
-        align-items: center;
+        gap: 8px;
+        margin-bottom: 16px;
+        padding-bottom: 16px;
+        border-bottom: 1px solid #e5e5e5;
       }
 
-      .growItem {
-        max-width: 100%;
-        flex-grow: 1;
+      .address-input-row input {
+        flex: 1;
+      }
+
+      .address-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .address-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 16px;
+        border-bottom: 1px solid #f5f5f5;
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 0.875rem;
+      }
+
+      .address-item:hover {
+        background: #fafafa;
+      }
+
+      .address-item .address-text {
+        flex: 1;
+        color: #333;
+        word-break: break-all;
+      }
+
+      .address-item .address-badge {
+        margin-left: 12px;
+        padding: 4px 8px;
+        border-radius: 3px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+
+      .address-badge.block {
+        background: #dc3545;
+        color: #fff;
+      }
+
+      .address-badge.white {
+        background: #28a745;
+        color: #fff;
+      }
+
+      /* Mail Detail */
+      .mail-detail-meta {
+        border-top: 1px solid #e5e5e5;
+        border-bottom: 1px solid #e5e5e5;
+        margin-bottom: 24px;
+      }
+
+      .mail-detail-meta-row {
+        padding: 14px 0;
+        display: grid;
+        grid-template-columns: 80px 1fr;
+        align-items: baseline;
+        border-bottom: 1px solid #f5f5f5;
+      }
+
+      .mail-detail-meta-row:last-child {
+        border-bottom: none;
+      }
+
+      .mail-detail-label {
+        font-size: 0.8125rem;
+        color: #666;
+        font-weight: 500;
+      }
+
+      .mail-detail-value {
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 0.875rem;
+        color: #333;
+        word-break: break-all;
+      }
+
+      .mail-detail-subject {
+        margin: 0 0 24px;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #111;
+        line-height: 1.4;
+        word-break: break-word;
+        letter-spacing: -0.02em;
+      }
+
+      .mail-detail-content {
+        margin-top: 24px;
+      }
+
+      .mail-detail-content h4 {
+        margin: 0 0 12px;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #111;
+      }
+
+      .mail-content-wrapper {
+        border: 1px solid #e5e5e5;
+        border-radius: 4px;
+        padding: 24px;
+        background: #fafafa;
+        max-height: 600px;
+        overflow-y: auto;
+      }
+
+      .mail-content-wrapper pre {
+        margin: 0;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 0.875rem;
+        line-height: 1.7;
+        color: #333;
+      }
+
+      .mail-content-wrapper.html-content {
+        padding: 0;
+        background: #fff;
+        overflow: visible;
+        max-height: none;
+      }
+
+      .mail-content-wrapper iframe {
+        width: 100%;
+        border: none;
+        display: block;
+        background: #fff;
+        min-height: 200px;
+      }
+
+      .mail-content-empty {
+        color: #999;
+        font-style: italic;
+        text-align: center;
+        padding: 40px 0;
+      }
+
+      /* Form Table */
+      .form-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .form-table td {
+        padding: 12px 0;
+      }
+
+      .form-table td:first-child {
+        width: 80px;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: #666;
+        padding-right: 16px;
+      }
+
+      /* Header Controls */
+      .header-controls {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-top: 16px;
+      }
+
+      .header-controls select {
+        flex: 1;
+        max-width: 200px;
+      }
+
+      /* Loading */
+      .loading {
+        text-align: center;
+        padding: 40px 0;
+        color: #666;
+        font-size: 0.875rem;
+      }
+
+      /* Empty State */
+      .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #999;
+      }
+
+      .empty-state p {
+        margin: 0;
+        font-size: 0.9375rem;
+      }
+
+      /* Responsive */
+      @media (max-width: 600px) {
+        body {
+          padding: 0;
+        }
+
+        .container {
+          border-left: none;
+          border-right: none;
+          border-radius: 0;
+        }
+
+        .section-header {
+          padding: 16px;
+        }
+
+        .section-header h3 {
+          font-size: 1.25rem;
+        }
+
+        .section-content {
+          padding: 16px;
+        }
+
+        .mail-list-table {
+          font-size: 0.8125rem;
+        }
+
+        .mail-list-table th,
+        .mail-list-table td {
+          padding: 12px 8px;
+        }
+
+        .mail-list-table .subject-cell {
+          padding-right: 8px;
+        }
+
+        .mail-list-table .action-cell {
+          width: 70px;
+        }
+
+        .mail-detail-meta-row {
+          grid-template-columns: 70px 1fr;
+          padding: 12px 0;
+        }
+
+        .mail-detail-subject {
+          font-size: 1.25rem;
+          margin-bottom: 20px;
+        }
+
+        .mail-detail-content h4 {
+          font-size: 0.9375rem;
+        }
+
+        .mail-content-wrapper {
+          padding: 16px;
+          border-radius: 4px;
+        }
+
+        .mail-content-wrapper.html-content {
+          padding: 0;
+        }
+
+        .header-controls {
+          flex-wrap: wrap;
+        }
+
+        button {
+          font-size: 0.8125rem;
+          padding: 6px 12px;
+        }
+      }
+
+      @media (max-width: 400px) {
+        .mail-list-table .action-cell {
+          width: 60px;
+        }
+
+        .mail-detail-meta-row {
+          grid-template-columns: 60px 1fr;
+          font-size: 0.8125rem;
+        }
       }
     </style>
   </head>
 
   <body>
     <div id="app">
-      <div v-if="func === 'list'">
-        <h3 class="growContainer">
-          List Mode
-          <select class="growItem" style="margin-left: 10px" v-model="mode">
-            <option value="block">Block list</option>
-            <option value="white">White list</option>
-            <option value="test">Test address</option>
-          </select>
-        </h3>
-        <p v-if="tipMessage">{{ tipMessage }}</p>
-        <table>
-          <thead>
-            <tr>
-              <th>address</th>
-              <th>{{ mode === 'test' ? 'type' : 'action' }}</th>
-            </tr>
-          </thead>
-          <tbody v-if="mode!=='test'">
-            <tr>
-              <td class="growContainer">
-                <input :placeholder="inputPlaceholder" class="growItem" v-model="inputAddress" />
-              </td>
-              <td>
-                <button @click="addAddress">Add</button>
-              </td>
-            </tr>
-            <tr :key="index" v-for="(address, index) in addresses">
-              <td>{{ address }}</td>
-              <td>
-                <button @click="removeAddress(index)">Delete</button>
-              </td>
-            </tr>
-          </tbody>
-          <tbody v-else>
-            <tr>
-              <td class="growContainer">
-                <input :placeholder="inputPlaceholder" class="growItem" v-model="inputAddress" />
-              </td>
-              <td>
-                <button @click="testAddress">Test</button>
-              </td>
-            </tr>
-            <tr :key="index" v-for="(item, index) in addresses">
-              <td>{{ item.address }}</td>
-              <td>{{ item.result }}</td>
-            </tr>
-          </tbody>
-        </table>
+      <!-- Mail List View -->
+      <div v-if="func === 'mails'" class="container">
+        <div class="section-header">
+          <h3>邮件列表</h3>
+        </div>
+        <div class="section-content">
+          <p v-if="tipMessage" :class="['tip-message', { error: tipMessage.startsWith('ERROR') }]">{{ tipMessage }}</p>
+          <div v-if="loading" class="loading">加载中...</div>
+          <div v-else>
+            <div v-if="mailList.length === 0" class="empty-state">
+              <p>暂无邮件</p>
+            </div>
+            <table v-else class="mail-list-table">
+              <thead>
+                <tr>
+                  <th>标题</th>
+                  <th class="action-cell">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr :key="mail.id" v-for="mail in mailList">
+                  <td class="subject-cell">{{ mail.subject || '(无标题)' }}</td>
+                  <td class="action-cell">
+                    <button @click="viewMail(mail.id)" class="primary">查看</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <button v-if="hasMore" @click="loadMoreMails" class="primary full-width">加载更多</button>
+          </div>
+        </div>
       </div>
-      <div v-if="func === 'sendmail'">
-        <h3>Send Mail</h3>
-        <p v-if="tipMessage">{{ tipMessage }}</p>
-        <table>
-          <tbody>
-            <tr>
-              <td style="width: 10px">From</td>
-              <td>
-                <input v-model="sendMail.from" class="growItem" />
-              </td>
-            </tr>
-            <tr>
-              <td>To</td>
-              <td>
-                <input v-model="sendMail.to" class="growItem" />
-              </td>
-            </tr>
-            <tr>
-              <td>Subject</td>
-              <td>
-                <input v-model="sendMail.subject" class="growItem" />
-              </td>
-            </tr>
-            <tr>
-              <td>Text</td>
-              <td>
-                <textarea v-model="sendMail.text" class="growItem"></textarea>
-              </td>
-            </tr>
-            <tr>
-              <td colspan="2">
-                <button>Send</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+
+      <!-- Mail Detail View -->
+      <div v-if="func === 'mail-detail' && currentMail" class="container">
+        <div class="section-header">
+          <h3>邮件详情</h3>
+          <div class="header-controls">
+            <button @click="backToList">← 返回列表</button>
+          </div>
+        </div>
+        <div class="section-content">
+          <div class="mail-detail-meta">
+            <div class="mail-detail-meta-row">
+              <span class="mail-detail-label">发件人:</span>
+              <span class="mail-detail-value">{{ currentMail.from }}</span>
+            </div>
+            <div class="mail-detail-meta-row">
+              <span class="mail-detail-label">收件人:</span>
+              <span class="mail-detail-value">{{ currentMail.to }}</span>
+            </div>
+          </div>
+          <h2 class="mail-detail-subject">{{ currentMail.subject || '(无标题)' }}</h2>
+          <div class="mail-detail-content">
+            <h4>邮件正文</h4>
+            <div v-if="currentMail.html" :class="['mail-content-wrapper', 'html-content']">
+              <iframe id="mail-content-frame" title="邮件正文预览" :srcdoc="currentMail.html" @load="syncFrameHeight"></iframe>
+            </div>
+            <div v-else-if="currentMail.text" class="mail-content-wrapper">
+              <pre>{{ currentMail.text }}</pre>
+            </div>
+            <div v-else class="mail-content-empty">(正文为空)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Address List Management -->
+      <div v-if="func === 'list'" class="container">
+        <div class="section-header">
+          <h3>地址列表管理</h3>
+          <div class="header-controls">
+            <select v-model="mode" aria-label="选择列表类型">
+              <option value="block">黑名单</option>
+              <option value="white">白名单</option>
+              <option value="test">测试地址</option>
+            </select>
+          </div>
+        </div>
+        <div class="section-content">
+          <p v-if="tipMessage" :class="['tip-message', { error: tipMessage.startsWith('ERROR') }]">{{ tipMessage }}</p>
+
+          <!-- Non-test mode: Add/Remove addresses -->
+          <div v-if="mode !== 'test'">
+            <div class="address-input-row">
+              <input type="text" :placeholder="inputPlaceholder" v-model="inputAddress" @keyup.enter="addAddress" aria-label="地址输入" />
+              <button @click="addAddress" class="primary">添加</button>
+            </div>
+            <ul class="address-list" v-if="addresses.length > 0">
+              <li :key="index" v-for="(address, index) in addresses" class="address-item">
+                <span class="address-text">{{ address }}</span>
+                <button @click="removeAddress(index)" class="danger">删除</button>
+              </li>
+            </ul>
+            <div v-else class="empty-state">
+              <p>暂无地址</p>
+            </div>
+          </div>
+
+          <!-- Test mode: Test addresses -->
+          <div v-else>
+            <div class="address-input-row">
+              <input type="text" :placeholder="inputPlaceholder" v-model="inputAddress" @keyup.enter="testAddress" aria-label="测试地址输入" />
+              <button @click="testAddress" class="primary">测试</button>
+            </div>
+            <ul class="address-list" v-if="addresses.length > 0">
+              <li :key="index" v-for="(item, index) in addresses" class="address-item">
+                <span class="address-text">{{ item.address }}</span>
+                <span :class="['address-badge', item.result]">{{ item.result }}</span>
+              </li>
+            </ul>
+            <div v-else class="empty-state">
+              <p>输入地址后点击测试</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Send Mail (Future Feature) -->
+      <div v-if="func === 'sendmail'" class="container">
+        <div class="section-header">
+          <h3>发送邮件</h3>
+        </div>
+        <div class="section-content">
+          <p v-if="tipMessage" :class="['tip-message', { error: tipMessage.startsWith('ERROR') }]">{{ tipMessage }}</p>
+          <table class="form-table">
+            <tbody>
+              <tr>
+                <td>发件人</td>
+                <td>
+                  <input type="email" v-model="sendMail.from" placeholder="sender@example.com" aria-label="发件人" />
+                </td>
+              </tr>
+              <tr>
+                <td>收件人</td>
+                <td>
+                  <input type="email" v-model="sendMail.to" placeholder="recipient@example.com" aria-label="收件人" />
+                </td>
+              </tr>
+              <tr>
+                <td>标题</td>
+                <td>
+                  <input type="text" v-model="sendMail.subject" placeholder="邮件标题" aria-label="邮件标题" />
+                </td>
+              </tr>
+              <tr>
+                <td>正文</td>
+                <td>
+                  <textarea v-model="sendMail.text" placeholder="邮件正文" aria-label="邮件正文"></textarea>
+                </td>
+              </tr>
+              <tr>
+                <td colspan="2">
+                  <button class="primary full-width">发送</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -179,6 +686,18 @@
         async loadAddress(tma) {
           return this.request("/api/address/list", "GET");
         }
+
+        async loadMails(limit, cursor) {
+          const params = new URLSearchParams();
+          if (limit) params.append("limit", limit);
+          if (cursor) params.append("cursor", cursor);
+          const query = params.toString();
+          return this.request(`/api/mails/list${query ? "?" + query : ""}`, "GET");
+        }
+
+        async loadMailDetail(id) {
+          return this.request(`/api/mails/${id}`, "GET");
+        }
       }
 
       createApp({
@@ -190,6 +709,11 @@
           const testList = ref([]);
           const tipMessage = ref("");
           const inputAddress = ref("");
+          const loading = ref(false);
+          const mailList = ref([]);
+          const currentMail = ref(null);
+          const cursor = ref(null);
+          const hasMore = ref(false);
 
           const sendMail = ref({
             from: "",
@@ -302,16 +826,147 @@
             testList.value = test;
           };
 
+          const loadMails = async () => {
+            try {
+              loading.value = true;
+              const result = await client.loadMails(50, cursor.value);
+              mailList.value = [...mailList.value, ...result.mails];
+              cursor.value = result.cursor;
+              hasMore.value = !!result.cursor;
+              tipMessage.value = "";
+            } catch (error) {
+              tipMessage.value = `ERROR: ` + error.message;
+            } finally {
+              loading.value = false;
+            }
+          };
+
+          const loadMoreMails = async () => {
+            await loadMails();
+          };
+
+          const viewMail = async (id) => {
+            try {
+              loading.value = true;
+              const mail = await client.loadMailDetail(id);
+              currentMail.value = mail;
+              func.value = "mail-detail";
+              tipMessage.value = "";
+            } catch (error) {
+              tipMessage.value = `ERROR: ` + error.message;
+            } finally {
+              loading.value = false;
+            }
+          };
+
+          const backToList = () => {
+            func.value = "mails";
+            currentMail.value = null;
+          };
+
+          let resizeObserver = null;
+
+          const syncFrameHeight = () => {
+            const frame = document.getElementById("mail-content-frame");
+            if (!frame) return;
+
+            const updateHeight = () => {
+              try {
+                const doc = frame.contentDocument || (frame.contentWindow && frame.contentWindow.document);
+                if (!doc) {
+                  // Fallback height if can't access document
+                  frame.style.height = "500px";
+                  return;
+                }
+
+                // Wait for content to be fully rendered
+                setTimeout(() => {
+                  const body = doc.body;
+                  const html = doc.documentElement;
+
+                  if (!body || !html) {
+                    frame.style.height = "500px";
+                    return;
+                  }
+
+                  // Calculate the maximum height needed
+                  let height = Math.max(body.scrollHeight || 0, body.offsetHeight || 0, html.scrollHeight || 0, html.offsetHeight || 0, body.getBoundingClientRect().height || 0);
+
+                  // Add some padding to prevent cutoff
+                  height = Math.max(height + 20, 200);
+
+                  frame.style.height = height + "px";
+
+                  // Set up ResizeObserver for dynamic content changes
+                  if ("ResizeObserver" in window && !resizeObserver) {
+                    resizeObserver = new ResizeObserver(() => {
+                      const newHeight = Math.max(body.scrollHeight || 0, body.offsetHeight || 0, html.scrollHeight || 0, html.offsetHeight || 0, body.getBoundingClientRect().height || 0) + 20;
+
+                      if (newHeight > 200) {
+                        frame.style.height = newHeight + "px";
+                      }
+                    });
+                    resizeObserver.observe(body);
+                    if (html !== body) {
+                      resizeObserver.observe(html);
+                    }
+                  }
+
+                  // Also check for images loading
+                  const images = doc.querySelectorAll("img");
+                  if (images.length > 0) {
+                    let loadedCount = 0;
+                    images.forEach((img) => {
+                      if (img.complete) {
+                        loadedCount++;
+                      } else {
+                        img.addEventListener("load", () => {
+                          loadedCount++;
+                          if (loadedCount === images.length) {
+                            updateHeight();
+                          }
+                        });
+                      }
+                    });
+                  }
+                }, 100);
+              } catch (err) {
+                // Cross-origin restriction or other errors
+                console.warn("Frame height sync error:", err);
+                frame.style.height = "500px";
+              }
+            };
+
+            updateHeight();
+
+            // Also retry after a delay to catch late-rendering content
+            setTimeout(updateHeight, 300);
+            setTimeout(updateHeight, 800);
+          };
+
           watch(mode, () => {
             inputAddress.value = "";
+          });
+
+          watch(currentMail, (newVal, oldVal) => {
+            // Clean up observer when switching mails
+            if (oldVal && newVal !== oldVal && resizeObserver) {
+              resizeObserver.disconnect();
+              resizeObserver = null;
+            }
           });
 
           onMounted(async () => {
             try {
               client.tma = window.Telegram.WebApp.initData;
-              const { block, white } = await client.loadAddress();
-              blockList.value = block;
-              whiteList.value = white;
+
+              if (func.value === "mails") {
+                await loadMails();
+              } else if (func.value === "list") {
+                const { block, white } = await client.loadAddress();
+                blockList.value = block;
+                whiteList.value = white;
+              }
             } catch (error) {
               tipMessage.value = `ERROR: ` + error.message;
             }
@@ -328,6 +983,14 @@
             addAddress,
             removeAddress,
             testAddress,
+            loading,
+            mailList,
+            currentMail,
+            hasMore,
+            loadMoreMails,
+            viewMail,
+            backToList,
+            syncFrameHeight,
           };
         },
       }).mount("#app");
