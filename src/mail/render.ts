@@ -75,7 +75,7 @@ function renderEmailDetail(text: string | undefined | null, id: string, parseMod
           },
           {
             text: "删除",
-            callback_data: "delete",
+            callback_data: `delete:${id}`,
           },
         ],
       ],

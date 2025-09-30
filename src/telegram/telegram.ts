@@ -148,12 +148,20 @@ async function telegramCallbackHandler(callback: Telegram.CallbackQuery, env: En
     };
   };
 
-  // eslint-disable-next-line unused-imports/no-unused-vars
-  const deleteMessage = async (arg: string): Promise<void> => {
+  const deleteMessage = async (_arg: string): Promise<void> => {
+    const mailID = await dao.telegramIDToMailID(`${messageId}`);
+
+    // 删除 Telegram 消息
     await api.deleteMessage({
       chat_id: chatId,
       message_id: messageId,
     });
+
+    // 删除数据库中的邮件
+    if (mailID) {
+      await dao.deleteMail(mailID);
+      console.log(`Deleted mail from database: ${mailID}`);
+    }
   };
 
   const handlers = {

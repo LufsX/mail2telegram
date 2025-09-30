@@ -112,6 +112,18 @@ export class Dao {
     await this.db.put(`TelegramID2MailID:${id}`, mailID, { expirationTtl: ttl });
   }
 
+  async deleteMail(id: string): Promise<void> {
+    await this.db.delete(id);
+
+    const summaryPrefix = `MailSummary:`;
+    const summaryList = await this.db.list({ prefix: summaryPrefix });
+    for (const key of summaryList.keys) {
+      if (key.name.endsWith(`:${id}`)) {
+        await this.db.delete(key.name);
+      }
+    }
+  }
+
   async listMails(limit: number = 50, cursor?: string): Promise<{ mails: EmailCache[]; cursor?: string }> {
     const list = await this.db.list({ prefix: "", limit, cursor });
     const mails: EmailCache[] = [];
