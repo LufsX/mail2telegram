@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-cn">
+<html lang="zh-cn" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,6 +7,90 @@
     <script src="https://cors.isteed.cc/https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <style>
+      :root {
+        color-scheme: light;
+        --bg: #fafafa;
+        --surface: #fff;
+        --surface-secondary: #f5f5f5;
+        --text: #222;
+        --text-strong: #111;
+        --text-subtle: #333;
+        --text-muted: #666;
+        --text-faint: #999;
+        --border: #e5e5e5;
+        --border-soft: #f5f5f5;
+        --button-bg: #fff;
+        --button-border: #ddd;
+        --button-hover-border: #999;
+        --button-hover-bg: #f9f9f9;
+        --button-active-bg: #f0f0f0;
+        --input-bg: #fff;
+        --input-border: #ddd;
+        --tip-bg: #fff3cd;
+        --tip-border: #ffc107;
+        --tip-text: #856404;
+        --tip-error-bg: #f8d7da;
+        --tip-error-border: #dc3545;
+        --tip-error-text: #721c24;
+        --table-header-text: #666;
+        --badge-white-bg: #28a745;
+        --badge-white-text: #fff;
+        --badge-block-bg: #dc3545;
+        --badge-block-text: #fff;
+        --empty-text: #999;
+        --loading-text: #666;
+        --mail-content-bg: #fafafa;
+        --mail-frame-bg: #fff;
+        --primary: #0088cc;
+        --primary-hover: #006699;
+        --primary-text: #fff;
+        --danger: #dc3545;
+        --danger-hover: #dc3545;
+        --danger-text: #dc3545;
+      }
+
+      :root[data-theme="dark"] {
+        color-scheme: dark;
+        --bg: #000000;
+        --surface: #000000;
+        --surface-secondary: #1e293b;
+        --text: #e2e8f0;
+        --text-strong: #f9fafb;
+        --text-subtle: #e2e8f0;
+        --text-muted: #94a3b8;
+        --text-faint: #94a3b8;
+        --border: #1f2937;
+        --border-soft: #24324a;
+        --button-bg: #1f2937;
+        --button-border: #334155;
+        --button-hover-border: #60a5fa;
+        --button-hover-bg: #273449;
+        --button-active-bg: #334155;
+        --input-bg: #0f172a;
+        --input-border: #334155;
+        --tip-bg: rgba(255, 193, 7, 0.12);
+        --tip-border: #facc15;
+        --tip-text: #facc15;
+        --tip-error-bg: rgba(220, 53, 69, 0.15);
+        --tip-error-border: #f87171;
+        --tip-error-text: #fca5a5;
+        --table-header-text: #94a3b8;
+        --badge-white-bg: #22c55e;
+        --badge-white-text: #052e16;
+        --badge-block-bg: #ef4444;
+        --badge-block-text: #fef2f2;
+        --empty-text: #94a3b8;
+        --loading-text: #94a3b8;
+        --mail-content-bg: #fafafa;
+        --mail-frame-bg: #fff;
+        --primary: #2bb8ff;
+        --primary-hover: #5ecbff;
+        --primary-text: #fff;
+        --danger: #f87171;
+        --danger-hover: #dc2626;
+        --danger-text: #f87171;
+      }
+
       * {
         box-sizing: border-box;
       }
@@ -15,30 +99,32 @@
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
         margin: 0;
         padding: 16px;
-        background: #fafafa;
-        color: #222;
+        background: var(--bg);
+        color: var(--text);
         line-height: 1.6;
+        transition: background 0.2s ease, color 0.2s ease;
       }
 
       .container {
         max-width: 840px;
         margin: 0 auto;
-        background: #fff;
-        border: 1px solid #e5e5e5;
+        background: var(--surface);
+        border: 1px solid var(--border);
         overflow: hidden;
+        transition: background 0.2s ease, border-color 0.2s ease;
       }
 
       .section-header {
         padding: 24px 24px 16px;
-        border-bottom: 1px solid #e5e5e5;
-        background: #fff;
+        border-bottom: 1px solid var(--border);
+        background: var(--surface);
       }
 
       .section-header h3 {
         margin: 0;
         font-size: 1.375rem;
         font-weight: 600;
-        color: #111;
+        color: var(--text-strong);
         letter-spacing: -0.02em;
       }
 
@@ -49,25 +135,25 @@
       .tip-message {
         padding: 12px 16px;
         margin: 0 0 16px;
-        background: #fff3cd;
-        border: 1px solid #ffc107;
+        background: var(--tip-bg);
+        border: 1px solid var(--tip-border);
         border-radius: 4px;
-        color: #856404;
+        color: var(--tip-text);
         font-size: 0.875rem;
       }
 
       .tip-message.error {
-        background: #f8d7da;
-        border-color: #dc3545;
-        color: #721c24;
+        background: var(--tip-error-bg);
+        border-color: var(--tip-error-border);
+        color: var(--tip-error-text);
       }
 
       /* Buttons */
       button {
         padding: 8px 16px;
-        border: 1px solid #ddd;
-        background: #fff;
-        color: #333;
+        border: 1px solid var(--button-border);
+        background: var(--button-bg);
+        color: var(--text-subtle);
         font-size: 0.875rem;
         font-family: inherit;
         cursor: pointer;
@@ -77,38 +163,53 @@
       }
 
       button:hover {
-        border-color: #999;
-        background: #f9f9f9;
+        border-color: var(--button-hover-border);
+        background: var(--button-hover-bg);
       }
 
       button:active {
-        background: #f0f0f0;
+        background: var(--button-active-bg);
       }
 
       button.primary {
-        background: #0088cc;
-        color: #fff;
-        border-color: #0088cc;
+        background: var(--button-bg);
+        color: var(--text-subtle);
+        border-color: var(--button-border);
       }
 
       button.primary:hover {
-        background: #006699;
-        border-color: #006699;
+        background: var(--button-hover-bg);
+        border-color: var(--button-hover-border);
       }
 
       button.danger {
-        color: #dc3545;
-        border-color: #dc3545;
+        color: var(--danger-text);
+        border-color: var(--danger);
       }
 
       button.danger:hover {
-        background: #dc3545;
-        color: #fff;
+        background: var(--danger-hover);
+        color: var(--primary-text);
+        border-color: var(--danger-hover);
       }
 
       button.full-width {
         width: 100%;
         margin-top: 16px;
+      }
+
+      .scroll-top-btn {
+        position: fixed;
+        right: max(16px, calc((100vw - 840px) / 2 + 24px));
+        bottom: 80px;
+        z-index: 1000;
+        box-shadow: 0 12px 32px rgba(15, 23, 42, 0.18);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .scroll-top-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 16px 36px rgba(15, 23, 42, 0.22);
       }
 
       /* Input & Select */
@@ -118,20 +219,20 @@
       textarea {
         width: 100%;
         padding: 8px 12px;
-        border: 1px solid #ddd;
+        border: 1px solid var(--input-border);
         border-radius: 4px;
         font-size: 0.875rem;
         font-family: ui-monospace, "SF Mono", Menlo, monospace;
-        color: #333;
-        background: #fff;
-        transition: border-color 0.2s;
+        color: var(--text-subtle);
+        background: var(--input-bg);
+        transition: border-color 0.2s, background 0.2s ease, color 0.2s ease;
       }
 
       input:focus,
       select:focus,
       textarea:focus {
         outline: none;
-        border-color: #0088cc;
+        border-color: var(--primary);
       }
 
       textarea {
@@ -149,7 +250,7 @@
       }
 
       .mail-list-table thead {
-        border-bottom: 2px solid #e5e5e5;
+        border-bottom: 2px solid var(--border);
       }
 
       .mail-list-table th {
@@ -157,23 +258,23 @@
         text-align: left;
         font-size: 0.8125rem;
         font-weight: 600;
-        color: #666;
+        color: var(--table-header-text);
         text-transform: uppercase;
         letter-spacing: 0.05em;
       }
 
       .mail-list-table td {
         padding: 16px;
-        border-bottom: 1px solid #f5f5f5;
+        border-bottom: 1px solid var(--border-soft);
         font-size: 0.875rem;
       }
 
       .mail-list-table tr:hover {
-        background: #fafafa;
+        background: var(--surface-secondary);
       }
 
       .mail-list-table .subject-cell {
-        color: #333;
+        color: var(--text-subtle);
         font-weight: 500;
         word-break: break-word;
         line-height: 1.5;
@@ -196,7 +297,7 @@
         gap: 8px;
         margin-bottom: 16px;
         padding-bottom: 16px;
-        border-bottom: 1px solid #e5e5e5;
+        border-bottom: 1px solid var(--border);
       }
 
       .address-input-row input {
@@ -214,18 +315,18 @@
         justify-content: space-between;
         align-items: center;
         padding: 12px 16px;
-        border-bottom: 1px solid #f5f5f5;
+        border-bottom: 1px solid var(--border-soft);
         font-family: ui-monospace, "SF Mono", Menlo, monospace;
         font-size: 0.875rem;
       }
 
       .address-item:hover {
-        background: #fafafa;
+        background: var(--surface-secondary);
       }
 
       .address-item .address-text {
         flex: 1;
-        color: #333;
+        color: var(--text-subtle);
         word-break: break-all;
       }
 
@@ -239,19 +340,19 @@
       }
 
       .address-badge.block {
-        background: #dc3545;
-        color: #fff;
+        background: var(--badge-block-bg);
+        color: var(--badge-block-text);
       }
 
       .address-badge.white {
-        background: #28a745;
-        color: #fff;
+        background: var(--badge-white-bg);
+        color: var(--badge-white-text);
       }
 
       /* Mail Detail */
       .mail-detail-meta {
-        border-top: 1px solid #e5e5e5;
-        border-bottom: 1px solid #e5e5e5;
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
         margin-bottom: 24px;
       }
 
@@ -260,7 +361,7 @@
         display: grid;
         grid-template-columns: 80px 1fr;
         align-items: baseline;
-        border-bottom: 1px solid #f5f5f5;
+        border-bottom: 1px solid var(--border-soft);
       }
 
       .mail-detail-meta-row:last-child {
@@ -269,14 +370,14 @@
 
       .mail-detail-label {
         font-size: 0.8125rem;
-        color: #666;
+        color: var(--text-muted);
         font-weight: 500;
       }
 
       .mail-detail-value {
         font-family: ui-monospace, "SF Mono", Menlo, monospace;
         font-size: 0.875rem;
-        color: #333;
+        color: var(--text-subtle);
         word-break: break-all;
       }
 
@@ -284,7 +385,7 @@
         margin: 0 0 24px;
         font-size: 1.5rem;
         font-weight: 600;
-        color: #111;
+        color: var(--text-strong);
         line-height: 1.4;
         word-break: break-word;
         letter-spacing: -0.02em;
@@ -298,14 +399,14 @@
         margin: 0 0 12px;
         font-size: 1rem;
         font-weight: 600;
-        color: #111;
+        color: var(--text-strong);
       }
 
       .mail-content-wrapper {
-        border: 1px solid #e5e5e5;
+        border: 1px solid var(--border);
         border-radius: 4px;
         padding: 24px;
-        background: #fafafa;
+        background: var(--mail-content-bg);
         max-height: 600px;
         overflow-y: auto;
       }
@@ -317,12 +418,12 @@
         font-family: ui-monospace, "SF Mono", Menlo, monospace;
         font-size: 0.875rem;
         line-height: 1.7;
-        color: #333;
+        color: var(--text-subtle);
       }
 
       .mail-content-wrapper.html-content {
         padding: 0;
-        background: #fff;
+        background: var(--mail-frame-bg);
         overflow: visible;
         max-height: none;
       }
@@ -331,12 +432,11 @@
         width: 100%;
         border: none;
         display: block;
-        background: #fff;
-        min-height: 200px;
+        background: var(--mail-frame-bg);
       }
 
       .mail-content-empty {
-        color: #999;
+        color: var(--empty-text);
         font-style: italic;
         text-align: center;
         padding: 40px 0;
@@ -356,7 +456,7 @@
         width: 80px;
         font-size: 0.8125rem;
         font-weight: 500;
-        color: #666;
+        color: var(--text-muted);
         padding-right: 16px;
       }
 
@@ -377,7 +477,7 @@
       .loading {
         text-align: center;
         padding: 40px 0;
-        color: #666;
+        color: var(--loading-text);
         font-size: 0.875rem;
       }
 
@@ -385,7 +485,7 @@
       .empty-state {
         text-align: center;
         padding: 60px 20px;
-        color: #999;
+        color: var(--empty-text);
       }
 
       .empty-state p {
@@ -464,6 +564,11 @@
         button {
           font-size: 0.8125rem;
           padding: 6px 12px;
+        }
+
+        .scroll-top-btn {
+          right: 16px;
+          bottom: 64px;
         }
       }
 
@@ -645,28 +750,62 @@
           </table>
         </div>
       </div>
+
+      <button v-if="showScrollTop" class="scroll-top-btn primary" @click="scrollToTop" aria-label="返回顶部">↑ 返回顶部</button>
     </div>
 
     <script>
-      const { createApp, computed, ref, onMounted, watch } = Vue;
+      const setTheme = (scheme) => {
+        const theme = scheme === "dark" ? "dark" : "light";
+        document.documentElement.setAttribute("data-theme", theme);
+      };
+
+      const initTheme = () => {
+        const tg = window.Telegram && window.Telegram.WebApp;
+
+        if (tg && typeof tg.colorScheme === "string") {
+          setTheme(tg.colorScheme);
+          if (typeof tg.onEvent === "function") {
+            tg.onEvent("themeChanged", () => setTheme(tg.colorScheme));
+          }
+        } else {
+          const media = window.matchMedia("(prefers-color-scheme: dark)");
+          const apply = (value) => setTheme(value ? "dark" : "light");
+          apply(media.matches);
+          const handler = (event) => apply(event.matches);
+          if (typeof media.addEventListener === "function") {
+            media.addEventListener("change", handler);
+          } else if (typeof media.addListener === "function") {
+            media.addListener(handler);
+          }
+        }
+      };
+
+      initTheme();
+
+      const formatError = (error) => (error instanceof Error ? error.message : String(error ?? ""));
+
+  const { createApp, computed, ref, onMounted, onUnmounted, watch } = Vue;
 
       class Client {
         constructor(tma) {
           this.tma = tma;
-          this.addAddress = this.addAddress.bind(this);
-          this.removeAddress = this.removeAddress.bind(this);
-          this.loadAddress = this.loadAddress.bind(this);
         }
 
         async request(path, method, body) {
-          const res = await fetch(path, {
-            method: method,
+          const options = {
+            method,
             headers: {
               "Content-Type": "application/json",
               Authorization: `tma ${this.tma}`,
             },
-            body: JSON.stringify(body),
-          }).then((response) => response.json());
+          };
+
+          if (body !== undefined) {
+            options.body = JSON.stringify(body);
+          }
+
+          const res = await fetch(path, options).then((response) => response.json());
           if (res.error) {
             throw new Error(res.error);
           }
@@ -687,7 +826,7 @@
           });
         }
 
-        async loadAddress(tma) {
+        async loadAddress() {
           return this.request("/api/address/list", "GET");
         }
 
@@ -711,6 +850,11 @@
           const blockList = ref([]);
           const whiteList = ref([]);
           const testList = ref([]);
+          const listRegistry = {
+            block: blockList,
+            white: whiteList,
+            test: testList,
+          };
           const tipMessage = ref("");
           const inputAddress = ref("");
           const loading = ref(false);
@@ -718,6 +862,7 @@
           const currentMail = ref(null);
           const cursor = ref(null);
           const hasMore = ref(false);
+          const showScrollTop = ref(false);
 
           const sendMail = ref({
             from: "",
@@ -730,69 +875,51 @@
           const mode = ref(urlParams.get("mode") || "block");
           const client = new Client("");
 
-          const addresses = computed(() => {
-            switch (mode.value) {
-              case "block":
-                return blockList.value;
-              case "white":
-                return whiteList.value;
-              case "test":
-                return testList.value;
-            }
-          });
+          const addresses = computed(() => listRegistry[mode.value]?.value ?? []);
 
-          const inputPlaceholder = computed(() => {
-            switch (mode.value) {
-              case "block":
-                return "New block address regex";
-              case "white":
-                return "New white address regex";
-              case "test":
-                return "Test address";
-            }
-          });
+          const placeholders = {
+            block: "New block address regex",
+            white: "New white address regex",
+            test: "Test address",
+          };
+
+          const inputPlaceholder = computed(() => placeholders[mode.value] ?? placeholders.block);
+
+          const toggleScrollTop = () => {
+            showScrollTop.value = window.scrollY > 300 && func.value === "mail-detail";
+          };
+
+          const scrollToTop = () => {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          };
 
           const addAddress = async () => {
+            const address = inputAddress.value.trim();
+            if (!address) return;
+
             try {
-              if (!inputAddress.value) {
-                return;
-              }
-              const address = inputAddress.value.trim();
               await client.addAddress(address, mode.value);
               inputAddress.value = "";
-              switch (mode.value) {
-                case "block":
-                  blockList.value.push(address);
-                  break;
-                case "white":
-                  whiteList.value.push(address);
-                  break;
-                case "test":
-                  break;
+              if (mode.value !== "test") {
+                listRegistry[mode.value]?.value.push(address);
               }
-              tipMessage.value = null;
+              tipMessage.value = "";
             } catch (error) {
-              tipMessage.value = `ERROR: ` + error;
+              tipMessage.value = `ERROR: ${formatError(error)}`;
             }
           };
 
           const removeAddress = async (index) => {
             try {
               const address = addresses.value[index];
+              if (!address) return;
               await client.removeAddress(address, mode.value);
-              switch (mode.value) {
-                case "block":
-                  blockList.value.splice(index, 1);
-                  break;
-                case "white":
-                  whiteList.value.splice(index, 1);
-                  break;
-                case "test":
-                  break;
+              if (mode.value !== "test") {
+                listRegistry[mode.value]?.value.splice(index, 1);
               }
-              tipMessage.value = null;
+              tipMessage.value = "";
             } catch (error) {
-              tipMessage.value = `ERROR: ` + error;
+              tipMessage.value = `ERROR: ${formatError(error)}`;
             }
           };
 
@@ -809,25 +936,27 @@
           };
 
           const testAddress = () => {
-            const test = [];
             const address = inputAddress.value.trim();
-            for (const pattern of blockList.value) {
-              if (testAddressWithPattern(pattern, address)) {
-                test.push({
-                  address: pattern,
-                  result: "block",
-                });
+            if (!address) {
+              testList.value = [];
+              return;
+            }
+
+            const results = [];
+            const targets = [
+              { patterns: blockList.value, result: "block" },
+              { patterns: whiteList.value, result: "white" },
+            ];
+
+            for (const { patterns, result } of targets) {
+              for (const pattern of patterns) {
+                if (testAddressWithPattern(pattern, address)) {
+                  results.push({ address: pattern, result });
+                }
               }
             }
-            for (const pattern of whiteList.value) {
-              if (testAddressWithPattern(pattern, address)) {
-                test.push({
-                  address: pattern,
-                  result: "white",
-                });
-              }
-            }
-            testList.value = test;
+
+            testList.value = results;
           };
 
           const loadMails = async () => {
@@ -839,7 +968,7 @@
               hasMore.value = !!result.cursor;
               tipMessage.value = "";
             } catch (error) {
-              tipMessage.value = `ERROR: ` + error.message;
+              tipMessage.value = `ERROR: ${formatError(error)}`;
             } finally {
               loading.value = false;
             }
@@ -857,7 +986,7 @@
               func.value = "mail-detail";
               tipMessage.value = "";
             } catch (error) {
-              tipMessage.value = `ERROR: ` + error.message;
+              tipMessage.value = `ERROR: ${formatError(error)}`;
             } finally {
               loading.value = false;
             }
@@ -969,6 +1098,13 @@
             inputAddress.value = "";
           });
 
+          watch(func, () => {
+            if (func.value !== "mail-detail") {
+              showScrollTop.value = false;
+            }
+            toggleScrollTop();
+          });
+
           watch(currentMail, (newVal, oldVal) => {
             // Clean up observer when switching mails
             if (oldVal && newVal !== oldVal && resizeObserver) {
@@ -978,18 +1114,30 @@
           });
 
           onMounted(async () => {
+            toggleScrollTop();
+            window.addEventListener("scroll", toggleScrollTop, { passive: true });
             try {
-              client.tma = window.Telegram.WebApp.initData;
+              const tg = window.Telegram && window.Telegram.WebApp;
+              client.tma = tg?.initData ?? "";
+              tg?.ready?.();
 
               if (func.value === "mails") {
                 await loadMails();
               } else if (func.value === "list") {
-                const { block, white } = await client.loadAddress();
+                const { block = [], white = [] } = await client.loadAddress();
                 blockList.value = block;
                 whiteList.value = white;
               }
             } catch (error) {
-              tipMessage.value = `ERROR: ` + error.message;
+              tipMessage.value = `ERROR: ${formatError(error)}`;
+            }
+          });
+
+          onUnmounted(() => {
+            window.removeEventListener("scroll", toggleScrollTop);
+            if (resizeObserver) {
+              resizeObserver.disconnect();
+              resizeObserver = null;
             }
           });
 
@@ -1013,6 +1161,8 @@
             backToList,
             formatFullDateTime,
             syncFrameHeight,
+            scrollToTop,
+            showScrollTop,
           };
         },
       }).mount("#app");
