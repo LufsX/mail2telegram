@@ -57,32 +57,90 @@ export function buildHtmlPreview(metadata: MailPreviewMetadata, bodyHtml: string
   const metaSubject = escapeAttribute(subjectTitle);
 
   return `<!DOCTYPE html>
-<html lang="zh-cn">
+<html lang="zh-cn" data-theme="light">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="x-mail-subject" content="${metaSubject}" />
   <title>${safeSubject}</title>
   <style>
+    :root {
+      color-scheme: light;
+      --bg: #fafafa;
+      --surface: #ffffff;
+      --surface-secondary: #f5f5f5;
+      --text: #222;
+      --text-strong: #111;
+      --text-subtle: #333;
+      --text-muted: #666;
+      --text-faint: #999;
+      --border: #e5e5e5;
+      --border-soft: #f5f5f5;
+      --primary: #0088cc;
+      --primary-hover: #006699;
+      --primary-text: #ffffff;
+      --button-bg: #ffffff;
+      --button-border: #ddd;
+      --button-hover-border: #999;
+      --button-hover-bg: #f9f9f9;
+      --button-active-bg: #f0f0f0;
+      --plain-bg: #fafafa;
+      --plain-text: #333;
+      --empty-text: #999;
+      --frame-bg: #fff;
+    }
+
+    :root[data-theme="dark"] {
+      color-scheme: dark;
+      --bg: #000;
+      --surface: #000;
+      --surface-secondary: #1e293b;
+      --text: #e2e8f0;
+      --text-strong: #f8fafc;
+      --text-subtle: #e2e8f0;
+      --text-muted: #94a3b8;
+      --text-faint: #94a3b8;
+      --border: #1f2937;
+      --border-soft: #24324a;
+      --primary: #2bb8ff;
+      --primary-hover: #5ecbff;
+      --primary-text: #041322;
+      --button-bg: #1f2937;
+      --button-border: #334155;
+      --button-hover-border: #60a5fa;
+      --button-hover-bg: #273449;
+      --button-active-bg: #334155;
+      --plain-bg: #0f172a;
+      --plain-text: #e2e8f0;
+      --empty-text: #94a3b8;
+      --frame-bg: #0f172a;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
       margin: 0;
       padding: 24px 16px;
-      background: #fafafa;
-      color: #222;
+      background: var(--bg);
+      color: var(--text);
       line-height: 1.6;
+      transition: background 0.2s ease, color 0.2s ease;
     }
     .container {
       max-width: 840px;
       margin: 0 auto;
-      background: #fff;
+      background: var(--surface);
       padding: 32px;
-      border: 1px solid #e5e5e5;
+      border: 1px solid var(--border);
       overflow: hidden;
+      transition: background 0.2s ease, border-color 0.2s ease;
     }
     .meta-stack {
-      border-top: 1px solid #e5e5e5;
-      border-bottom: 1px solid #e5e5e5;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
       margin-bottom: 40px;
     }
     .meta-row {
@@ -90,20 +148,20 @@ export function buildHtmlPreview(metadata: MailPreviewMetadata, bodyHtml: string
       display: grid;
       grid-template-columns: 80px 1fr;
       align-items: baseline;
-      border-bottom: 1px solid #f5f5f5;
+      border-bottom: 1px solid var(--border-soft);
     }
     .meta-row:last-child {
       border-bottom: none;
     }
     .label {
       font-size: 0.8125rem;
-      color: #666;
+      color: var(--text-muted);
       font-weight: 500;
     }
     .value {
       font-family: ui-monospace, "SF Mono", Menlo, monospace;
       font-size: 0.875rem;
-      color: #333;
+      color: var(--text-subtle);
       word-break: break-all;
       letter-spacing: -0.01em;
     }
@@ -111,7 +169,7 @@ export function buildHtmlPreview(metadata: MailPreviewMetadata, bodyHtml: string
       margin: 0 0 40px;
       font-size: 1.625rem;
       font-weight: 600;
-      color: #111;
+      color: var(--text-strong);
       line-height: 1.4;
       word-break: break-word;
       letter-spacing: -0.02em;
@@ -122,7 +180,7 @@ export function buildHtmlPreview(metadata: MailPreviewMetadata, bodyHtml: string
     }
     hr.subject-divider {
       border: none;
-      border-top: 1px solid #e5e5e5;
+      border-top: 1px solid var(--border);
       margin: 0;
     }
     button#download-btn {
@@ -131,15 +189,19 @@ export function buildHtmlPreview(metadata: MailPreviewMetadata, bodyHtml: string
       right: 0;
       transform: translateY(-50%);
       padding: 6px 16px;
-      border: 1px solid #ddd;
-      background: #fff;
-      color: #333;
+      border: 1px solid var(--button-border);
+      background: var(--button-bg);
+      color: var(--text-subtle);
       font-size: 0.875rem;
       cursor: pointer;
-      transition: border-color 0.2s;
+      transition: border-color 0.2s, background 0.2s ease, color 0.2s ease;
     }
     button#download-btn:hover {
-      border-color: #999;
+      border-color: var(--button-hover-border);
+      background: var(--button-hover-bg);
+    }
+    button#download-btn:active {
+      background: var(--button-active-bg);
     }
     .content-wrapper {
       margin: 0 -32px 0;
@@ -153,7 +215,7 @@ export function buildHtmlPreview(metadata: MailPreviewMetadata, bodyHtml: string
     iframe#mail-frame {
       width: 100%;
       border: none;
-      background: transparent;
+      background: var(--frame-bg);
       display: block;
     }
     .plain-text-body {
@@ -163,10 +225,11 @@ export function buildHtmlPreview(metadata: MailPreviewMetadata, bodyHtml: string
       line-height: 1.7;
       margin: 0;
       padding: 24px 32px;
-      color: #333;
+      color: var(--plain-text);
+      background: var(--plain-bg);
     }
     .empty {
-      color: #999;
+      color: var(--empty-text);
       font-style: italic;
       padding: 24px 32px;
       text-align: center;
@@ -200,6 +263,41 @@ export function buildHtmlPreview(metadata: MailPreviewMetadata, bodyHtml: string
   </div>
   <script data-download-exclude="true">
     (function () {
+      function setTheme(scheme) {
+        document.documentElement.setAttribute("data-theme", scheme === "dark" ? "dark" : "light");
+      }
+
+      function initTheme() {
+        var tg = window.Telegram && window.Telegram.WebApp;
+
+        if (tg && typeof tg.colorScheme === "string") {
+          setTheme(tg.colorScheme);
+          if (typeof tg.onEvent === "function") {
+            tg.onEvent("themeChanged", function () {
+              setTheme(tg.colorScheme);
+            });
+          }
+        } else {
+          var media = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)");
+          if (media) {
+            var apply = function (value) {
+              setTheme(value ? "dark" : "light");
+            };
+            apply(media.matches);
+            var handler = function (event) {
+              apply(event.matches);
+            };
+            if (typeof media.addEventListener === "function") {
+              media.addEventListener("change", handler);
+            } else if (typeof media.addListener === "function") {
+              media.addListener(handler);
+            }
+          }
+        }
+      }
+
+      initTheme();
+
       var receivedTimeEl = document.getElementById('received-time');
       if (receivedTimeEl) {
         var timestamp = Number(receivedTimeEl.dataset.timestamp);
