@@ -2,7 +2,7 @@
   "compilerOptions": {
     "composite": true,
     "target": "ESNext",
-    "lib": ["dom"],
+    "lib": ["dom", "esnext"],
     "rootDir": ".",
     "module": "ESNext",
     "moduleResolution": "bundler",

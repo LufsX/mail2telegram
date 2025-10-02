@@ -1,4 +1,4 @@
-import type { KVNamespace } from '@cloudflare/workers-types';
+import type { KVNamespace } from "@cloudflare/workers-types";
 
 export interface EmailHandleStatus {
   telegram: boolean;
@@ -13,11 +13,12 @@ export interface EmailCache {
   subject: string;
   html?: string;
   text?: string;
+  receivedAt?: number;
 }
 
-export type MaxEmailSizePolicy = 'unhandled' | 'continue' | 'truncate';
+export type MaxEmailSizePolicy = "unhandled" | "continue" | "truncate";
 
-export type BlockPolicy = 'reject' | 'forward' | 'telegram';
+export type BlockPolicy = "reject" | "forward" | "telegram";
 
 export interface Environment {
   TELEGRAM_TOKEN: string;

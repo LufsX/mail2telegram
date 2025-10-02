@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>mail2telegram</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://cors.isteed.cc/https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
     <style>
       * {
@@ -533,6 +533,10 @@
               <span class="mail-detail-label">收件人:</span>
               <span class="mail-detail-value">{{ currentMail.to }}</span>
             </div>
+            <div v-if="currentMail.receivedAt" class="mail-detail-meta-row">
+              <span class="mail-detail-label">收件时间:</span>
+              <span class="mail-detail-value">{{ formatFullDateTime(currentMail.receivedAt) }}</span>
+            </div>
           </div>
           <h2 class="mail-detail-subject">{{ currentMail.subject || '(无标题)' }}</h2>
           <div class="mail-detail-content">
@@ -864,6 +868,23 @@
             currentMail.value = null;
           };
 
+          const formatFullDateTime = (timestamp) => {
+            if (!timestamp) return "-";
+            try {
+              const date = new Date(timestamp);
+              const year = date.getFullYear();
+              const month = String(date.getMonth() + 1).padStart(2, "0");
+              const day = String(date.getDate()).padStart(2, "0");
+              const hours = String(date.getHours()).padStart(2, "0");
+              const minutes = String(date.getMinutes()).padStart(2, "0");
+              const seconds = String(date.getSeconds()).padStart(2, "0");
+
+              return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+            } catch (e) {
+              return "-";
+            }
+          };
+
           let resizeObserver = null;
 
           const syncFrameHeight = () => {
@@ -990,6 +1011,7 @@
             loadMoreMails,
             viewMail,
             backToList,
+            formatFullDateTime,
             syncFrameHeight,
           };
         },

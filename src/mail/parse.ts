@@ -35,6 +35,7 @@ export async function parseEmail(message: ForwardableEmailMessage, maxSize: numb
     from: message.from,
     to: message.to,
     subject: message.headers.get("Subject") || "",
+    receivedAt: Date.now(),
   };
   let isTruncate = false;
   let emailRaw = message.raw;

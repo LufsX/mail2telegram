@@ -113,13 +113,30 @@ export class Dao {
   }
 
   async deleteMail(id: string): Promise<void> {
+    // Delete the mail cache itself
     await this.db.delete(id);
 
+    // Delete all mail summaries
     const summaryPrefix = `MailSummary:`;
     const summaryList = await this.db.list({ prefix: summaryPrefix });
     for (const key of summaryList.keys) {
       if (key.name.endsWith(`:${id}`)) {
         await this.db.delete(key.name);
+      }
+    }
+
+    // Delete all TelegramID to MailID mappings that point to this mail
+    const telegramMappingPrefix = `TelegramID2MailID:`;
+    const mappingList = await this.db.list({ prefix: telegramMappingPrefix });
+    for (const key of mappingList.keys) {
+      try {
+        const mailID = await this.db.get(key.name);
+        if (mailID === id) {
+          await this.db.delete(key.name);
+          console.log(`Deleted telegram mapping: ${key.name} -> ${id}`);
+        }
+      } catch (e) {
+        console.error(`Failed to check mapping ${key.name}:`, e);
       }
     }
   }
@@ -145,6 +162,13 @@ export class Dao {
         console.error(`Failed to parse mail ${key.name}:`, e);
       }
     }
+
+    // Sort by receivedAt in descending order (newest first)
+    mails.sort((a, b) => {
+      const timeA = a.receivedAt || 0;
+      const timeB = b.receivedAt || 0;
+      return timeB - timeA;
+    });
 
     return {
       mails,

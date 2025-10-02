@@ -7,20 +7,32 @@ export interface MailPreviewMetadata {
   fromEmail: string;
   toEmail: string;
   subject: string;
+  receivedAt?: number;
 }
 
-export function buildMailMetadata(value: { from: string; to: string; subject: string }): MailPreviewMetadata {
-  const fromInfo = parseMailAddress(value.from);
-  const toInfo = parseMailAddress(value.to);
+export function buildMailMetadata({ from, to, subject, receivedAt }: { from: string; to: string; subject: string; receivedAt?: number }): MailPreviewMetadata {
+  const fromInfo = parseMailAddress(from);
+  const toInfo = parseMailAddress(to);
   return {
     fromEmail: fromInfo.email,
     toEmail: toInfo.email,
-    subject: value.subject || "",
+    subject: subject ?? "",
+    receivedAt,
   };
 }
 
 export function buildPlainPreview(metadata: MailPreviewMetadata, body: string): string {
-  const lines: string[] = [`发件邮箱: ${metadata.fromEmail || "-"}`, `收件邮箱: ${metadata.toEmail || "-"}`, "", `标题: ${metadata.subject || "(无标题)"}`, "", "正文:", "", body || "(正文为空)"];
+  const lines: string[] = [
+    `发件邮箱: ${metadata.fromEmail || "-"}`,
+    `收件邮箱: ${metadata.toEmail || "-"}`,
+    `收件时间: ${formatFullDateTime(metadata.receivedAt)}`,
+    "",
+    `标题: ${metadata.subject || "(无标题)"}`,
+    "",
+    "正文:",
+    "",
+    body || "(正文为空)",
+  ];
   return lines.join("\n");
 }
 
@@ -40,6 +52,7 @@ export function buildHtmlPreview(metadata: MailPreviewMetadata, bodyHtml: string
   const iframeContent = escapeAttribute(bodyHtml);
   const fromEmail = escapeHtml(metadata.fromEmail || "-");
   const toEmail = escapeHtml(metadata.toEmail || "-");
+  const receivedAtAttr = metadata.receivedAt == null ? "" : escapeAttribute(String(metadata.receivedAt));
   const safeSubject = escapeHtml(subjectTitle);
   const metaSubject = escapeAttribute(subjectTitle);
 
@@ -75,7 +88,7 @@ export function buildHtmlPreview(metadata: MailPreviewMetadata, bodyHtml: string
     .meta-row {
       padding: 14px 0;
       display: grid;
-      grid-template-columns: 70px 1fr;
+      grid-template-columns: 80px 1fr;
       align-items: baseline;
       border-bottom: 1px solid #f5f5f5;
     }
@@ -171,6 +184,10 @@ export function buildHtmlPreview(metadata: MailPreviewMetadata, bodyHtml: string
         <span class="label">收件邮箱:</span>
         <span class="value">${toEmail}</span>
       </div>
+      <div class="meta-row">
+        <span class="label">收件时间:</span>
+        <span class="value" id="received-time" data-timestamp="${receivedAtAttr}">-</span>
+      </div>
     </section>
     <h1 class="subject">${safeSubject}</h1>
     <div class="divider-with-button">
@@ -183,6 +200,25 @@ export function buildHtmlPreview(metadata: MailPreviewMetadata, bodyHtml: string
   </div>
   <script data-download-exclude="true">
     (function () {
+      var receivedTimeEl = document.getElementById('received-time');
+      if (receivedTimeEl) {
+        var timestamp = Number(receivedTimeEl.dataset.timestamp);
+        if (Number.isFinite(timestamp) && timestamp > 0) {
+          var date = new Date(timestamp);
+          if (!Number.isNaN(date.getTime())) {
+            receivedTimeEl.textContent = date.toLocaleString(undefined, {
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+              second: '2-digit',
+              hour12: false,
+            });
+          }
+        }
+      }
+
       function syncIframeHeight(frame) {
         if (!frame) {
           return;
@@ -298,4 +334,18 @@ function escapeHtml(value: string): string {
 
 function escapeAttribute(value: string): string {
   return escapeHtml(value).replace(/\n/g, "&#10;").replace(/\r/g, "&#13;");
+}
+
+function formatFullDateTime(timestamp?: number): string {
+  if (timestamp == null) {
+    return "-";
+  }
+  const date = new Date(timestamp);
+  if (Number.isNaN(date.getTime())) {
+    return "-";
+  }
+  return date
+    .toISOString()
+    .replace("T", " ")
+    .replace(/\.\d{3}Z$/, " UTC");
 }
