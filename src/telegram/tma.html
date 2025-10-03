@@ -9,86 +9,40 @@
     <style>
       :root {
         color-scheme: light;
-        --bg: #fafafa;
-        --surface: #fff;
-        --surface-secondary: #f5f5f5;
-        --text: #222;
-        --text-strong: #111;
-        --text-subtle: #333;
-        --text-muted: #666;
-        --text-faint: #999;
-        --border: #e5e5e5;
-        --border-soft: #f5f5f5;
-        --button-bg: #fff;
-        --button-border: #ddd;
-        --button-hover-border: #999;
-        --button-hover-bg: #f9f9f9;
-        --button-active-bg: #f0f0f0;
-        --input-bg: #fff;
-        --input-border: #ddd;
-        --tip-bg: #fff3cd;
-        --tip-border: #ffc107;
-        --tip-text: #856404;
-        --tip-error-bg: #f8d7da;
-        --tip-error-border: #dc3545;
-        --tip-error-text: #721c24;
-        --table-header-text: #666;
-        --badge-white-bg: #28a745;
-        --badge-white-text: #fff;
-        --badge-block-bg: #dc3545;
-        --badge-block-text: #fff;
-        --empty-text: #999;
-        --loading-text: #666;
-        --mail-content-bg: #fafafa;
-        --mail-frame-bg: #fff;
-        --primary: #0088cc;
-        --primary-hover: #006699;
-        --primary-text: #fff;
-        --danger: #dc3545;
-        --danger-hover: #dc3545;
-        --danger-text: #dc3545;
+        --c-bg: #f4f5f7;
+        --c-surface: #ffffff;
+        --c-surface-2: #f0f4f8;
+        --c-text: #1f2933;
+        --c-text-soft: #334155;
+        --c-text-muted: #7b8794;
+        --c-border: #d9e2ec;
+        --c-border-soft: #e4ebf5;
+        --c-primary: #0088cc;
+        --c-primary-hover: #0b6fa4;
+        --c-danger: #e12d39;
+        --c-danger-hover: #c81e32;
+        --c-tip-bg: #fff8e1;
+        --c-tip-border: #f6c453;
+        --c-tip-text: #8d5d0b;
       }
 
       :root[data-theme="dark"] {
         color-scheme: dark;
-        --bg: #000000;
-        --surface: #000000;
-        --surface-secondary: #1e293b;
-        --text: #e2e8f0;
-        --text-strong: #f9fafb;
-        --text-subtle: #e2e8f0;
-        --text-muted: #94a3b8;
-        --text-faint: #94a3b8;
-        --border: #1f2937;
-        --border-soft: #24324a;
-        --button-bg: #1f2937;
-        --button-border: #334155;
-        --button-hover-border: #60a5fa;
-        --button-hover-bg: #273449;
-        --button-active-bg: #334155;
-        --input-bg: #0f172a;
-        --input-border: #334155;
-        --tip-bg: rgba(255, 193, 7, 0.12);
-        --tip-border: #facc15;
-        --tip-text: #facc15;
-        --tip-error-bg: rgba(220, 53, 69, 0.15);
-        --tip-error-border: #f87171;
-        --tip-error-text: #fca5a5;
-        --table-header-text: #94a3b8;
-        --badge-white-bg: #22c55e;
-        --badge-white-text: #052e16;
-        --badge-block-bg: #ef4444;
-        --badge-block-text: #fef2f2;
-        --empty-text: #94a3b8;
-        --loading-text: #94a3b8;
-        --mail-content-bg: #fafafa;
-        --mail-frame-bg: #fff;
-        --primary: #2bb8ff;
-        --primary-hover: #5ecbff;
-        --primary-text: #fff;
-        --danger: #f87171;
-        --danger-hover: #dc2626;
-        --danger-text: #f87171;
+        --c-bg: #0f172a;
+        --c-surface: #111827;
+        --c-surface-2: #1e293b;
+        --c-text: #e2e8f0;
+        --c-text-soft: #cbd5f5;
+        --c-text-muted: #94a3b8;
+        --c-border: #1f2937;
+        --c-border-soft: #273449;
+        --c-primary: #2bb8ff;
+        --c-primary-hover: #5ecbff;
+        --c-danger: #f87171;
+        --c-danger-hover: #dc2626;
+        --c-tip-bg: rgba(255, 214, 102, 0.08);
+        --c-tip-border: rgba(255, 214, 102, 0.4);
+        --c-tip-text: #facc15;
       }
 
       * {
@@ -96,1073 +50,1021 @@
       }
 
       body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
         margin: 0;
         padding: 16px;
-        background: var(--bg);
-        color: var(--text);
+        background: var(--c-bg);
+        color: var(--c-text);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
         line-height: 1.6;
         transition: background 0.2s ease, color 0.2s ease;
       }
 
-      .container {
+      .app {
         max-width: 840px;
         margin: 0 auto;
-        background: var(--surface);
-        border: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .panel {
+        border: 1px solid var(--c-border);
+        border-radius: 1px;
+        background: var(--c-surface);
         overflow: hidden;
-        transition: background 0.2s ease, border-color 0.2s ease;
       }
 
-      .section-header {
-        padding: 24px 24px 16px;
-        border-bottom: 1px solid var(--border);
-        background: var(--surface);
+      .panel__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        padding: 20px 24px 12px;
+        border-bottom: 1px solid var(--c-border-soft);
+        background: var(--c-surface);
       }
 
-      .section-header h3 {
+      .panel__header h3 {
         margin: 0;
-        font-size: 1.375rem;
+        font-size: 1.25rem;
         font-weight: 600;
-        color: var(--text-strong);
-        letter-spacing: -0.02em;
+        color: var(--c-text);
       }
 
-      .section-content {
+      .panel__body {
         padding: 24px;
       }
 
-      .tip-message {
-        padding: 12px 16px;
-        margin: 0 0 16px;
-        background: var(--tip-bg);
-        border: 1px solid var(--tip-border);
-        border-radius: 4px;
-        color: var(--tip-text);
-        font-size: 0.875rem;
-      }
-
-      .tip-message.error {
-        background: var(--tip-error-bg);
-        border-color: var(--tip-error-border);
-        color: var(--tip-error-text);
-      }
-
-      /* Buttons */
       button {
-        padding: 8px 16px;
-        border: 1px solid var(--button-border);
-        background: var(--button-bg);
-        color: var(--text-subtle);
+        padding: 8px 14px;
+        border-radius: 1px;
+        border: 1px solid var(--c-border);
+        background: transparent;
+        color: var(--c-text);
         font-size: 0.875rem;
         font-family: inherit;
-        cursor: pointer;
-        transition: all 0.2s;
-        border-radius: 4px;
         font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
       }
 
       button:hover {
-        border-color: var(--button-hover-border);
-        background: var(--button-hover-bg);
+        background: var(--c-surface-2);
       }
 
       button:active {
-        background: var(--button-active-bg);
+        transform: translateY(1px);
+      }
+
+      button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
       }
 
       button.primary {
-        background: var(--button-bg);
-        color: var(--text-subtle);
-        border-color: var(--button-border);
+        background: var(--c-primary);
+        border-color: var(--c-primary);
+        color: #ffffff;
       }
 
       button.primary:hover {
-        background: var(--button-hover-bg);
-        border-color: var(--button-hover-border);
+        background: var(--c-primary-hover);
+        border-color: var(--c-primary-hover);
       }
 
       button.danger {
-        color: var(--danger-text);
-        border-color: var(--danger);
+        color: var(--c-danger);
+        border-color: var(--c-danger);
       }
 
       button.danger:hover {
-        background: var(--danger-hover);
-        color: var(--primary-text);
-        border-color: var(--danger-hover);
+        background: var(--c-danger-hover);
+        border-color: var(--c-danger-hover);
+        color: #ffffff;
       }
 
-      button.full-width {
+      button.full {
         width: 100%;
         margin-top: 16px;
       }
 
-      .scroll-top-btn {
-        position: fixed;
-        right: max(16px, calc((100vw - 840px) / 2 + 24px));
-        bottom: 80px;
-        z-index: 1000;
-        box-shadow: 0 12px 32px rgba(15, 23, 42, 0.18);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-      }
-
-      .scroll-top-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 16px 36px rgba(15, 23, 42, 0.22);
-      }
-
-      /* Input & Select */
-      input[type="text"],
-      input[type="email"],
-      select,
-      textarea {
+      input,
+      textarea,
+      select {
         width: 100%;
         padding: 8px 12px;
-        border: 1px solid var(--input-border);
-        border-radius: 4px;
+        border-radius: 1px;
+        border: 1px solid var(--c-border);
+        background: var(--c-surface);
         font-size: 0.875rem;
         font-family: ui-monospace, "SF Mono", Menlo, monospace;
-        color: var(--text-subtle);
-        background: var(--input-bg);
-        transition: border-color 0.2s, background 0.2s ease, color 0.2s ease;
+        color: var(--c-text-soft);
+        transition: border-color 0.2s ease, background 0.2s ease;
       }
 
       input:focus,
-      select:focus,
-      textarea:focus {
+      textarea:focus,
+      select:focus {
         outline: none;
-        border-color: var(--primary);
+        border-color: var(--c-primary);
       }
 
       textarea {
-        min-height: 100px;
+        min-height: 120px;
         resize: vertical;
-        font-family: ui-monospace, "SF Mono", Menlo, monospace;
-        line-height: 1.5;
       }
 
-      /* Mail List Table */
-      .mail-list-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 16px;
+      select {
+        width: auto;
       }
 
-      .mail-list-table thead {
-        border-bottom: 2px solid var(--border);
-      }
-
-      .mail-list-table th {
+      .tip {
+        margin: 0 0 16px;
         padding: 12px 16px;
-        text-align: left;
-        font-size: 0.8125rem;
-        font-weight: 600;
-        color: var(--table-header-text);
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-      }
-
-      .mail-list-table td {
-        padding: 16px;
-        border-bottom: 1px solid var(--border-soft);
+        border-radius: 1px;
+        border: 1px solid var(--c-tip-border);
+        background: var(--c-tip-bg);
+        color: var(--c-tip-text);
         font-size: 0.875rem;
       }
 
-      .mail-list-table tr:hover {
-        background: var(--surface-secondary);
+      .tip.error {
+        background: rgba(225, 45, 57, 0.12);
+        border-color: rgba(225, 45, 57, 0.4);
+        color: var(--c-danger);
       }
 
-      .mail-list-table .subject-cell {
-        color: var(--text-subtle);
-        font-weight: 500;
-        word-break: break-word;
-        line-height: 1.5;
+      .empty {
+        text-align: center;
+        color: var(--c-text-muted);
+        padding: 32px 0;
+        font-size: 0.9rem;
       }
 
-      .mail-list-table .action-cell {
+      .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0;
+      }
+
+      .table th,
+      .table td {
+        padding: 14px 16px;
+        text-align: left;
+        border-bottom: 1px solid var(--c-border-soft);
+        font-size: 0.875rem;
+      }
+
+      .table thead th {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--c-text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+
+      .table tbody tr:hover {
+        background: var(--c-surface-2);
+      }
+
+      .table__action {
+        width: 90px;
         text-align: right;
         white-space: nowrap;
-        vertical-align: top;
-        width: 80px;
       }
 
-      .mail-list-table th.action-cell {
-        text-align: right;
+      .subject {
+        color: var(--c-text-soft);
+        font-weight: 500;
+        word-break: break-word;
       }
 
-      /* Address List */
-      .address-input-row {
+      .mail-meta {
+        border: 1px solid var(--c-border);
+        border-radius: 1px;
+        background: var(--c-surface);
+        margin-bottom: 24px;
+        padding: 8px 16px;
+      }
+
+      .mail-meta__row {
+        display: grid;
+        grid-template-columns: 80px 1fr;
+        gap: 8px 16px;
+        align-items: baseline;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--c-border-soft);
+      }
+
+      .mail-meta__row:last-child {
+        border-bottom: none;
+      }
+
+      .mail-meta__label {
+        font-size: 0.8125rem;
+        color: var(--c-text-muted);
+        font-weight: 600;
+      }
+
+      .mail-meta__value {
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 0.875rem;
+        color: var(--c-text-soft);
+        word-break: break-all;
+      }
+
+      .mail-subject {
+        margin: 16px 0 24px;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--c-text);
+        line-height: 1.4;
+      }
+
+      .mail-tabs {
         display: flex;
+        flex-wrap: wrap;
         gap: 8px;
         margin-bottom: 16px;
-        padding-bottom: 16px;
-        border-bottom: 1px solid var(--border);
       }
 
-      .address-input-row input {
+      .mail-tabs button {
+        background: var(--c-surface-2);
+        border-color: transparent;
+        color: var(--c-text-soft);
+      }
+
+      .mail-tabs button.active {
+        background: var(--c-primary);
+        border-color: var(--c-primary);
+        color: #ffffff;
+      }
+
+      .mail-view {
+        border: 1px solid var(--c-border);
+        border-radius: 1px;
+        padding: 16px;
+        background: var(--c-surface-2);
+        max-height: 600px;
+        overflow: auto;
+      }
+
+      .mail-view--html {
+        border: 1px solid var(--c-border);
+        border-radius: 1px;
+        padding: 0;
+        overflow: visible;
+        background: var(--c-surface);
+        width: 100%;
+        max-height: none;
+      }
+
+      .mail-view pre,
+      .mail-view .mail-text {
+        margin: 0;
+        font-family: ui-monospace, "SF Mono", Menlo, monospace;
+        font-size: 0.875rem;
+        line-height: 1.7;
+        color: var(--c-text-soft);
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+
+      .mail-view--html iframe {
+        width: 100%;
+        border: none;
+        display: block;
+        background: var(--c-surface);
+        margin: 0;
+      }
+
+      .mail-view a {
+        color: var(--c-primary);
+        text-decoration: underline;
+        word-break: break-all;
+      }
+
+      .mail-view a:hover {
+        color: var(--c-primary-hover);
+      }
+
+      .mail-view .empty {
+        padding: 24px 0;
+      }
+
+      .summary-meta {
+        margin-top: 12px;
+        font-size: 0.75rem;
+        color: var(--c-text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+
+      .input-row {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+
+      .input-row input {
         flex: 1;
+      }
+
+      .form-label {
+        width: 80px;
+        color: var(--c-text-muted);
+        font-size: 0.8125rem;
+        display: inline-flex;
+        align-items: center;
+      }
+
+      .input-row--textarea {
+        align-items: flex-start;
+      }
+
+      .input-row--textarea .form-label {
+        padding-top: 8px;
       }
 
       .address-list {
         list-style: none;
-        padding: 0;
         margin: 0;
+        padding: 0;
+        border: 1px solid var(--c-border);
+        border-radius: 1px;
+        overflow: hidden;
       }
 
       .address-item {
         display: flex;
         justify-content: space-between;
         align-items: center;
+        gap: 12px;
         padding: 12px 16px;
-        border-bottom: 1px solid var(--border-soft);
+        border-bottom: 1px solid var(--c-border-soft);
+        background: var(--c-surface);
         font-family: ui-monospace, "SF Mono", Menlo, monospace;
         font-size: 0.875rem;
+        color: var(--c-text-soft);
       }
 
-      .address-item:hover {
-        background: var(--surface-secondary);
+      .address-item:last-child {
+        border-bottom: none;
       }
 
-      .address-item .address-text {
-        flex: 1;
-        color: var(--text-subtle);
-        word-break: break-all;
-      }
-
-      .address-item .address-badge {
-        margin-left: 12px;
+      .badge {
         padding: 4px 8px;
-        border-radius: 3px;
+        border-radius: 1px;
         font-size: 0.75rem;
         font-weight: 600;
         text-transform: uppercase;
       }
 
-      .address-badge.block {
-        background: var(--badge-block-bg);
-        color: var(--badge-block-text);
+      .badge.block {
+        background: var(--c-danger);
+        color: #ffffff;
       }
 
-      .address-badge.white {
-        background: var(--badge-white-bg);
-        color: var(--badge-white-text);
+      .badge.white {
+        background: #22c55e;
+        color: #052e16;
       }
 
-      /* Mail Detail */
-      .mail-detail-meta {
-        border-top: 1px solid var(--border);
-        border-bottom: 1px solid var(--border);
-        margin-bottom: 24px;
+      .scroll-top {
+        position: fixed;
+        right: max(16px, calc((100vw - 840px) / 2 + 24px));
+        bottom: 80px;
+        box-shadow: 0 12px 32px rgba(15, 23, 42, 0.2);
+        z-index: 999;
       }
 
-      .mail-detail-meta-row {
-        padding: 14px 0;
-        display: grid;
-        grid-template-columns: 80px 1fr;
-        align-items: baseline;
-        border-bottom: 1px solid var(--border-soft);
+      .scroll-top:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 16px 36px rgba(15, 23, 42, 0.24);
       }
 
-      .mail-detail-meta-row:last-child {
-        border-bottom: none;
+      @media (max-width: 720px) {
+        body {
+          padding: 12px;
+        }
+
+        .panel__header {
+          padding: 16px 20px 10px;
+        }
+
+        .panel__body {
+          padding: 20px;
+        }
+
+        button {
+          padding: 6px 12px;
+        }
+
+        .table__action {
+          width: 70px;
+        }
+
+        .mail-meta__row {
+          grid-template-columns: 70px 1fr;
+        }
+
+        .mail-subject {
+          font-size: 1.3rem;
+        }
       }
 
-      .mail-detail-label {
-        font-size: 0.8125rem;
-        color: var(--text-muted);
-        font-weight: 500;
-      }
-
-      .mail-detail-value {
-        font-family: ui-monospace, "SF Mono", Menlo, monospace;
-        font-size: 0.875rem;
-        color: var(--text-subtle);
-        word-break: break-all;
-      }
-
-      .mail-detail-subject {
-        margin: 0 0 24px;
-        font-size: 1.5rem;
-        font-weight: 600;
-        color: var(--text-strong);
-        line-height: 1.4;
-        word-break: break-word;
-        letter-spacing: -0.02em;
-      }
-
-      .mail-detail-content {
-        margin-top: 24px;
-      }
-
-      .mail-detail-content h4 {
-        margin: 0 0 12px;
-        font-size: 1rem;
-        font-weight: 600;
-        color: var(--text-strong);
-      }
-
-      .mail-content-wrapper {
-        border: 1px solid var(--border);
-        border-radius: 4px;
-        padding: 24px;
-        background: var(--mail-content-bg);
-        max-height: 600px;
-        overflow-y: auto;
-      }
-
-      .mail-content-wrapper pre {
-        margin: 0;
-        white-space: pre-wrap;
-        word-wrap: break-word;
-        font-family: ui-monospace, "SF Mono", Menlo, monospace;
-        font-size: 0.875rem;
-        line-height: 1.7;
-        color: var(--text-subtle);
-      }
-
-      .mail-content-wrapper.html-content {
-        padding: 0;
-        background: var(--mail-frame-bg);
-        overflow: visible;
-        max-height: none;
-      }
-
-      .mail-content-wrapper iframe {
-        width: 100%;
-        border: none;
-        display: block;
-        background: var(--mail-frame-bg);
-      }
-
-      .mail-content-empty {
-        color: var(--empty-text);
-        font-style: italic;
-        text-align: center;
-        padding: 40px 0;
-      }
-
-      /* Form Table */
-      .form-table {
-        width: 100%;
-        border-collapse: collapse;
-      }
-
-      .form-table td {
-        padding: 12px 0;
-      }
-
-      .form-table td:first-child {
-        width: 80px;
-        font-size: 0.8125rem;
-        font-weight: 500;
-        color: var(--text-muted);
-        padding-right: 16px;
-      }
-
-      /* Header Controls */
-      .header-controls {
-        display: flex;
-        gap: 12px;
-        align-items: center;
-        margin-top: 16px;
-      }
-
-      .header-controls select {
-        flex: 1;
-        max-width: 200px;
-      }
-
-      /* Loading */
-      .loading {
-        text-align: center;
-        padding: 40px 0;
-        color: var(--loading-text);
-        font-size: 0.875rem;
-      }
-
-      /* Empty State */
-      .empty-state {
-        text-align: center;
-        padding: 60px 20px;
-        color: var(--empty-text);
-      }
-
-      .empty-state p {
-        margin: 0;
-        font-size: 0.9375rem;
-      }
-
-      /* Responsive */
-      @media (max-width: 600px) {
+      @media (max-width: 480px) {
         body {
           padding: 0;
         }
 
-        .container {
-          border-left: none;
-          border-right: none;
+        .app {
+          max-width: none;
+        }
+
+        .panel {
           border-radius: 0;
         }
 
-        .section-header {
-          padding: 16px;
+        .input-row {
+          flex-direction: column;
+          align-items: stretch;
         }
 
-        .section-header h3 {
-          font-size: 1.25rem;
+        .input-row button {
+          width: 100%;
         }
 
-        .section-content {
-          padding: 16px;
+        .mail-tabs {
+          width: 100%;
         }
 
-        .mail-list-table {
+        .mail-tabs button {
+          flex: 1 1 30%;
+        }
+
+        .table {
           font-size: 0.8125rem;
         }
 
-        .mail-list-table th,
-        .mail-list-table td {
+        .table th,
+        .table td {
           padding: 12px 8px;
-        }
-
-        .mail-list-table .subject-cell {
-          padding-right: 8px;
-        }
-
-        .mail-list-table .action-cell {
-          width: 70px;
-        }
-
-        .mail-detail-meta-row {
-          grid-template-columns: 70px 1fr;
-          padding: 12px 0;
-        }
-
-        .mail-detail-subject {
-          font-size: 1.25rem;
-          margin-bottom: 20px;
-        }
-
-        .mail-detail-content h4 {
-          font-size: 0.9375rem;
-        }
-
-        .mail-content-wrapper {
-          padding: 16px;
-          border-radius: 4px;
-        }
-
-        .mail-content-wrapper.html-content {
-          padding: 0;
-        }
-
-        .header-controls {
-          flex-wrap: wrap;
-        }
-
-        button {
-          font-size: 0.8125rem;
-          padding: 6px 12px;
-        }
-
-        .scroll-top-btn {
-          right: 16px;
-          bottom: 64px;
-        }
-      }
-
-      @media (max-width: 400px) {
-        .mail-list-table .action-cell {
-          width: 60px;
-        }
-
-        .mail-detail-meta-row {
-          grid-template-columns: 60px 1fr;
-          font-size: 0.8125rem;
         }
       }
     </style>
   </head>
-
   <body>
-    <div id="app">
-      <!-- Mail List View -->
-      <div v-if="func === 'mails'" class="container">
-        <div class="section-header">
+    <div id="app" class="app">
+      <section v-if="func === 'mails'" class="panel">
+        <header class="panel__header">
           <h3>邮件列表</h3>
-        </div>
-        <div class="section-content">
-          <p v-if="tipMessage" :class="['tip-message', { error: tipMessage.startsWith('ERROR') }]">{{ tipMessage }}</p>
-          <div v-if="loading" class="loading">加载中...</div>
-          <div v-else>
-            <div v-if="mailList.length === 0" class="empty-state">
-              <p>暂无邮件</p>
-            </div>
-            <table v-else class="mail-list-table">
+          <button @click="refreshMails" :disabled="loading">刷新</button>
+        </header>
+        <div class="panel__body">
+          <p v-if="tipMessage" :class="['tip', { error: tipMessage.startsWith('ERROR') }]">{{ tipMessage }}</p>
+          <div v-if="loading" class="empty">加载中...</div>
+          <template v-else>
+            <div v-if="!mailList.length" class="empty">暂无邮件</div>
+            <table v-else class="table">
               <thead>
                 <tr>
                   <th>标题</th>
-                  <th class="action-cell">操作</th>
+                  <th class="table__action">操作</th>
                 </tr>
               </thead>
               <tbody>
-                <tr :key="mail.id" v-for="mail in mailList">
-                  <td class="subject-cell">{{ mail.subject || '(无标题)' }}</td>
-                  <td class="action-cell">
-                    <button @click="viewMail(mail.id)" class="primary">查看</button>
+                <tr v-for="mail in mailList" :key="mail.id">
+                  <td class="subject">{{ mail.subject || '(无标题)' }}</td>
+                  <td class="table__action">
+                    <button class="primary" @click="viewMail(mail.id)">查看</button>
                   </td>
                 </tr>
               </tbody>
             </table>
-            <button v-if="hasMore" @click="loadMoreMails" class="primary full-width">加载更多</button>
-          </div>
+            <button v-if="hasMore" class="primary full" @click="loadMoreMails">加载更多</button>
+          </template>
         </div>
-      </div>
+      </section>
 
-      <!-- Mail Detail View -->
-      <div v-if="func === 'mail-detail' && currentMail" class="container">
-        <div class="section-header">
+      <section v-if="func === 'mail-detail' && currentMail" class="panel">
+        <header class="panel__header">
           <h3>邮件详情</h3>
-          <div class="header-controls">
-            <button @click="backToList">← 返回列表</button>
-          </div>
-        </div>
-        <div class="section-content">
-          <div class="mail-detail-meta">
-            <div class="mail-detail-meta-row">
-              <span class="mail-detail-label">发件人:</span>
-              <span class="mail-detail-value">{{ currentMail.from }}</span>
+          <button @click="backToList">← 返回列表</button>
+        </header>
+        <div class="panel__body">
+          <div class="mail-meta">
+            <div class="mail-meta__row">
+              <span class="mail-meta__label">发件人</span>
+              <span class="mail-meta__value">{{ currentMail.from }}</span>
             </div>
-            <div class="mail-detail-meta-row">
-              <span class="mail-detail-label">收件人:</span>
-              <span class="mail-detail-value">{{ currentMail.to }}</span>
+            <div class="mail-meta__row">
+              <span class="mail-meta__label">收件人</span>
+              <span class="mail-meta__value">{{ currentMail.to }}</span>
             </div>
-            <div v-if="currentMail.receivedAt" class="mail-detail-meta-row">
-              <span class="mail-detail-label">收件时间:</span>
-              <span class="mail-detail-value">{{ formatFullDateTime(currentMail.receivedAt) }}</span>
+            <div v-if="currentMail.receivedAt" class="mail-meta__row">
+              <span class="mail-meta__label">收件时间</span>
+              <span class="mail-meta__value">{{ formatFullDateTime(currentMail.receivedAt) }}</span>
             </div>
           </div>
-          <h2 class="mail-detail-subject">{{ currentMail.subject || '(无标题)' }}</h2>
-          <div class="mail-detail-content">
-            <h4>邮件正文</h4>
-            <div v-if="currentMail.html" :class="['mail-content-wrapper', 'html-content']">
-              <iframe id="mail-content-frame" title="邮件正文预览" :srcdoc="currentMail.html" @load="syncFrameHeight"></iframe>
-            </div>
-            <div v-else-if="currentMail.text" class="mail-content-wrapper">
-              <pre>{{ currentMail.text }}</pre>
-            </div>
-            <div v-else class="mail-content-empty">(正文为空)</div>
-          </div>
-        </div>
-      </div>
 
-      <!-- Address List Management -->
-      <div v-if="func === 'list'" class="container">
-        <div class="section-header">
+          <h2 class="mail-subject">{{ currentMail.subject || '(无标题)' }}</h2>
+
+          <div class="mail-tabs">
+            <button v-if="currentMail.html" :class="{ active: mailViewMode === 'html' }" @click="setMailViewMode('html')">HTML 正文</button>
+            <button v-if="currentMail.text" :class="{ active: mailViewMode === 'text' }" @click="setMailViewMode('text')">纯文本</button>
+            <button :class="{ active: mailViewMode === 'summary' }" @click="setMailViewMode('summary')">AI 摘要</button>
+          </div>
+
+          <div v-if="mailViewMode === 'html' && currentMail.html" class="mail-view--html">
+            <iframe id="mail-content-frame" :srcdoc="currentMail.html" title="邮件正文预览" @load="syncFrameHeight"></iframe>
+          </div>
+          <div v-else-if="mailViewMode === 'text' && currentMail.text" class="mail-view">
+            <div class="mail-text" v-html="textMailHtml"></div>
+          </div>
+          <div v-else-if="mailViewMode === 'summary'" class="mail-view">
+            <div v-if="summary.loading" class="empty">摘要生成中...</div>
+            <div v-else-if="summary.error" class="empty">{{ summary.error }}</div>
+            <template v-else-if="summary.text">
+              <pre>{{ summary.text }}</pre>
+              <div v-if="summaryLabel" class="summary-meta">来源：{{ summaryLabel }}</div>
+            </template>
+            <div v-else class="empty">点击“AI 摘要”生成内容</div>
+          </div>
+          <div v-else class="mail-view">
+            <div class="empty">(正文为空)</div>
+          </div>
+        </div>
+      </section>
+
+      <section v-if="func === 'list'" class="panel">
+        <header class="panel__header">
           <h3>地址列表管理</h3>
-          <div class="header-controls">
-            <select v-model="mode" aria-label="选择列表类型">
-              <option value="block">黑名单</option>
-              <option value="white">白名单</option>
-              <option value="test">测试地址</option>
-            </select>
-          </div>
-        </div>
-        <div class="section-content">
-          <p v-if="tipMessage" :class="['tip-message', { error: tipMessage.startsWith('ERROR') }]">{{ tipMessage }}</p>
+          <select v-model="mode" aria-label="选择列表类型">
+            <option value="block">黑名单</option>
+            <option value="white">白名单</option>
+            <option value="test">测试地址</option>
+          </select>
+        </header>
+        <div class="panel__body">
+          <p v-if="tipMessage" :class="['tip', { error: tipMessage.startsWith('ERROR') }]">{{ tipMessage }}</p>
 
-          <!-- Non-test mode: Add/Remove addresses -->
-          <div v-if="mode !== 'test'">
-            <div class="address-input-row">
-              <input type="text" :placeholder="inputPlaceholder" v-model="inputAddress" @keyup.enter="addAddress" aria-label="地址输入" />
-              <button @click="addAddress" class="primary">添加</button>
+          <template v-if="mode !== 'test'">
+            <div class="input-row">
+              <input v-model="inputAddress" :placeholder="inputPlaceholder" @keyup.enter="addAddress" aria-label="地址输入" />
+              <button class="primary" @click="addAddress">添加</button>
             </div>
-            <ul class="address-list" v-if="addresses.length > 0">
-              <li :key="index" v-for="(address, index) in addresses" class="address-item">
-                <span class="address-text">{{ address }}</span>
-                <button @click="removeAddress(index)" class="danger">删除</button>
+            <ul v-if="addresses.length" class="address-list">
+              <li v-for="(address, index) in addresses" :key="address + index" class="address-item">
+                <span>{{ address }}</span>
+                <button class="danger" @click="removeAddress(index)">删除</button>
               </li>
             </ul>
-            <div v-else class="empty-state">
-              <p>暂无地址</p>
-            </div>
-          </div>
+            <div v-else class="empty">暂无地址</div>
+          </template>
 
-          <!-- Test mode: Test addresses -->
-          <div v-else>
-            <div class="address-input-row">
-              <input type="text" :placeholder="inputPlaceholder" v-model="inputAddress" @keyup.enter="testAddress" aria-label="测试地址输入" />
-              <button @click="testAddress" class="primary">测试</button>
+          <template v-else>
+            <div class="input-row">
+              <input v-model="inputAddress" :placeholder="inputPlaceholder" @keyup.enter="testAddress" aria-label="测试地址输入" />
+              <button class="primary" @click="testAddress">测试</button>
             </div>
-            <ul class="address-list" v-if="addresses.length > 0">
-              <li :key="index" v-for="(item, index) in addresses" class="address-item">
-                <span class="address-text">{{ item.address }}</span>
-                <span :class="['address-badge', item.result]">{{ item.result }}</span>
+            <ul v-if="addresses.length" class="address-list">
+              <li v-for="(item, index) in addresses" :key="item.address + index" class="address-item">
+                <span>{{ item.address }}</span>
+                <span :class="['badge', item.result]">{{ item.result }}</span>
               </li>
             </ul>
-            <div v-else class="empty-state">
-              <p>输入地址后点击测试</p>
-            </div>
-          </div>
+            <div v-else class="empty">输入地址后点击测试</div>
+          </template>
         </div>
-      </div>
+      </section>
 
-      <!-- Send Mail (Future Feature) -->
-      <div v-if="func === 'sendmail'" class="container">
-        <div class="section-header">
+      <section v-if="func === 'sendmail'" class="panel">
+        <header class="panel__header">
           <h3>发送邮件</h3>
+        </header>
+        <div class="panel__body">
+          <p v-if="tipMessage" :class="['tip', { error: tipMessage.startsWith('ERROR') }]">{{ tipMessage }}</p>
+          <div class="input-row">
+            <label class="form-label">发件人</label>
+            <input type="email" v-model="sendMail.from" placeholder="sender@example.com" aria-label="发件人" />
+          </div>
+          <div class="input-row">
+            <label class="form-label">收件人</label>
+            <input type="email" v-model="sendMail.to" placeholder="recipient@example.com" aria-label="收件人" />
+          </div>
+          <div class="input-row">
+            <label class="form-label">标题</label>
+            <input type="text" v-model="sendMail.subject" placeholder="邮件标题" aria-label="邮件标题" />
+          </div>
+          <div class="input-row input-row--textarea">
+            <label class="form-label">正文</label>
+            <textarea v-model="sendMail.text" placeholder="邮件正文" aria-label="邮件正文"></textarea>
+          </div>
+          <button class="primary full">发送</button>
         </div>
-        <div class="section-content">
-          <p v-if="tipMessage" :class="['tip-message', { error: tipMessage.startsWith('ERROR') }]">{{ tipMessage }}</p>
-          <table class="form-table">
-            <tbody>
-              <tr>
-                <td>发件人</td>
-                <td>
-                  <input type="email" v-model="sendMail.from" placeholder="sender@example.com" aria-label="发件人" />
-                </td>
-              </tr>
-              <tr>
-                <td>收件人</td>
-                <td>
-                  <input type="email" v-model="sendMail.to" placeholder="recipient@example.com" aria-label="收件人" />
-                </td>
-              </tr>
-              <tr>
-                <td>标题</td>
-                <td>
-                  <input type="text" v-model="sendMail.subject" placeholder="邮件标题" aria-label="邮件标题" />
-                </td>
-              </tr>
-              <tr>
-                <td>正文</td>
-                <td>
-                  <textarea v-model="sendMail.text" placeholder="邮件正文" aria-label="邮件正文"></textarea>
-                </td>
-              </tr>
-              <tr>
-                <td colspan="2">
-                  <button class="primary full-width">发送</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+      </section>
 
-      <button v-if="showScrollTop" class="scroll-top-btn primary" @click="scrollToTop" aria-label="返回顶部">↑ 返回顶部</button>
+      <button v-if="showScrollTop" class="scroll-top primary" @click="scrollToTop" aria-label="返回顶部">↑ 返回顶部</button>
     </div>
 
     <script>
-      const setTheme = (scheme) => {
-        const theme = scheme === "dark" ? "dark" : "light";
-        document.documentElement.setAttribute("data-theme", theme);
+      const applyTheme = (scheme) => {
+        document.documentElement.setAttribute("data-theme", scheme === "dark" ? "dark" : "light");
+      };
+
+      let themeBound = false;
+
+      const bindTelegramTheme = () => {
+        if (themeBound) return true;
+        const tg = window.Telegram?.WebApp;
+        if (!tg) return false;
+        applyTheme(tg.colorScheme);
+        tg.onEvent?.("themeChanged", () => applyTheme(tg.colorScheme));
+        themeBound = true;
+        return true;
       };
 
       const initTheme = () => {
-        const tg = window.Telegram && window.Telegram.WebApp;
-
-        if (tg && typeof tg.colorScheme === "string") {
-          setTheme(tg.colorScheme);
-          if (typeof tg.onEvent === "function") {
-            tg.onEvent("themeChanged", () => setTheme(tg.colorScheme));
-          }
-        } else {
-          const media = window.matchMedia("(prefers-color-scheme: dark)");
-          const apply = (value) => setTheme(value ? "dark" : "light");
-          apply(media.matches);
-          const handler = (event) => apply(event.matches);
-          if (typeof media.addEventListener === "function") {
-            media.addEventListener("change", handler);
-          } else if (typeof media.addListener === "function") {
-            media.addListener(handler);
-          }
+        if (bindTelegramTheme()) return;
+        const media = window.matchMedia("(prefers-color-scheme: dark)");
+        const sync = () => applyTheme(media.matches ? "dark" : "light");
+        sync();
+        if (typeof media.addEventListener === "function") {
+          media.addEventListener("change", sync);
+        } else if (typeof media.addListener === "function") {
+          media.addListener(sync);
         }
       };
 
       initTheme();
 
-      const formatError = (error) => (error instanceof Error ? error.message : String(error ?? ""));
+      const safeError = (error) => (error instanceof Error ? error.message : String(error ?? ""));
 
-  const { createApp, computed, ref, onMounted, onUnmounted, watch } = Vue;
+      const escapeHtml = (value) =>
+        String(value ?? "").replace(
+          /[&<>"']/g,
+          (char) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            }[char])
+        );
 
-      class Client {
-        constructor(tma) {
-          this.tma = tma;
+      const linkify = (text) => {
+        if (!text) return "";
+        const pattern = /<((?:https?:\/\/|mailto:)[^>\s]+)>|((?:https?:\/\/|mailto:)[^\s<>"']+)/gi;
+        let lastIndex = 0;
+        let output = "";
+        text.replace(pattern, (match, bracketUrl, plainUrl, index) => {
+          output += escapeHtml(text.slice(lastIndex, index));
+          const url = bracketUrl || plainUrl;
+          if (url) {
+            const safeUrl = escapeHtml(url);
+            const label = bracketUrl ? `&lt;${safeUrl}&gt;` : safeUrl;
+            output += `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${label}</a>`;
+          }
+          lastIndex = index + match.length;
+          return match;
+        });
+        output += escapeHtml(text.slice(lastIndex));
+        return output.replace(/\r?\n/g, "<br />");
+      };
+
+      const matchPattern = (pattern, address) => {
+        if (!pattern || !address) return false;
+        if (pattern.toLowerCase() === address.toLowerCase()) return true;
+        try {
+          return new RegExp(pattern, "i").test(address);
+        } catch (error) {
+          return false;
         }
+      };
 
-        async request(path, method, body) {
-          const options = {
+      const createClient = (token) => {
+        const client = { token };
+        const request = async (path, { method = "GET", body } = {}) => {
+          const response = await fetch(path, {
             method,
             headers: {
               "Content-Type": "application/json",
-              Authorization: `tma ${this.tma}`,
+              Authorization: `tma ${client.token}`,
             },
-          };
-
-          if (body !== undefined) {
-            options.body = JSON.stringify(body);
-          }
-
-          const res = await fetch(path, options).then((response) => response.json());
-          if (res.error) {
-            throw new Error(res.error);
-          }
-          return res;
-        }
-
-        async addAddress(address, type) {
-          return this.request("/api/address/add", "POST", {
-            address,
-            type,
+            body: body !== undefined ? JSON.stringify(body) : undefined,
           });
-        }
+          const data = await response.json();
+          if (data.error) throw new Error(data.error);
+          return data;
+        };
 
-        async removeAddress(address, type) {
-          return this.request("/api/address/remove", "POST", {
-            address,
-            type,
-          });
-        }
+        return {
+          setToken: (value) => {
+            client.token = value || "";
+          },
+          addAddress: (address, type) => request("/api/address/add", { method: "POST", body: { address, type } }),
+          removeAddress: (address, type) => request("/api/address/remove", { method: "POST", body: { address, type } }),
+          loadAddress: () => request("/api/address/list"),
+          loadMails: (limit, cursor) => {
+            const params = new URLSearchParams();
+            if (limit) params.set("limit", limit);
+            if (cursor) params.set("cursor", cursor);
+            const query = params.toString();
+            return request(`/api/mails/list${query ? `?${query}` : ""}`);
+          },
+          loadMailDetail: (id) => request(`/api/mails/${id}`),
+          loadMailSummary: (id) => request(`/api/mails/${id}/summary`),
+        };
+      };
 
-        async loadAddress() {
-          return this.request("/api/address/list", "GET");
-        }
-
-        async loadMails(limit, cursor) {
-          const params = new URLSearchParams();
-          if (limit) params.append("limit", limit);
-          if (cursor) params.append("cursor", cursor);
-          const query = params.toString();
-          return this.request(`/api/mails/list${query ? "?" + query : ""}`, "GET");
-        }
-
-        async loadMailDetail(id) {
-          return this.request(`/api/mails/${id}`, "GET");
-        }
-      }
+      const { createApp, reactive, computed, watch, onMounted, onUnmounted, nextTick, toRefs } = Vue;
 
       createApp({
         setup() {
-          const urlParams = new URLSearchParams(window.location.search);
-
-          const blockList = ref([]);
-          const whiteList = ref([]);
-          const testList = ref([]);
-          const listRegistry = {
-            block: blockList,
-            white: whiteList,
-            test: testList,
-          };
-          const tipMessage = ref("");
-          const inputAddress = ref("");
-          const loading = ref(false);
-          const mailList = ref([]);
-          const currentMail = ref(null);
-          const cursor = ref(null);
-          const hasMore = ref(false);
-          const showScrollTop = ref(false);
-
-          const sendMail = ref({
-            from: "",
-            to: "",
-            subject: "",
-            text: "",
+          const params = new URLSearchParams(window.location.search);
+          const state = reactive({
+            func: params.get("func") || "list",
+            mode: params.get("mode") || "block",
+            tipMessage: "",
+            loading: false,
+            cursor: null,
+            hasMore: false,
+            mailList: [],
+            currentMail: null,
+            mailViewMode: "html",
+            summary: { text: "", source: "", loading: false, error: "" },
+            inputAddress: "",
+            sendMail: { from: "", to: "", subject: "", text: "" },
+            lists: { block: [], white: [] },
+            testList: [],
+            showScrollTop: false,
           });
 
-          const func = ref(urlParams.get("func") || "list");
-          const mode = ref(urlParams.get("mode") || "block");
-          const client = new Client("");
-
-          const addresses = computed(() => listRegistry[mode.value]?.value ?? []);
+          const client = createClient("");
 
           const placeholders = {
-            block: "New block address regex",
-            white: "New white address regex",
-            test: "Test address",
+            block: "新建黑名单正则",
+            white: "新建白名单正则",
+            test: "测试地址",
           };
 
-          const inputPlaceholder = computed(() => placeholders[mode.value] ?? placeholders.block);
-
-          const toggleScrollTop = () => {
-            showScrollTop.value = window.scrollY > 300 && func.value === "mail-detail";
+          const summaryLabels = {
+            cache: "来自缓存",
+            generated: "实时生成",
+            unavailable: "功能未启用",
+            error: "生成失败",
           };
 
-          const scrollToTop = () => {
-            window.scrollTo({ top: 0, behavior: "smooth" });
+          const resetSummary = () => {
+            Object.assign(state.summary, { text: "", source: "", loading: false, error: "" });
           };
 
-          const addAddress = async () => {
-            const address = inputAddress.value.trim();
-            if (!address) return;
+          const addresses = computed(() => (state.mode === "test" ? state.testList : state.lists[state.mode] ?? []));
+          const inputPlaceholder = computed(() => placeholders[state.mode] ?? placeholders.block);
+          const summaryLabel = computed(() => summaryLabels[state.summary.source] ?? "");
+          const textMailHtml = computed(() => (state.currentMail?.text ? linkify(state.currentMail.text) : ""));
 
-            try {
-              await client.addAddress(address, mode.value);
-              inputAddress.value = "";
-              if (mode.value !== "test") {
-                listRegistry[mode.value]?.value.push(address);
-              }
-              tipMessage.value = "";
-            } catch (error) {
-              tipMessage.value = `ERROR: ${formatError(error)}`;
-            }
+          const formatFullDateTime = (value) => {
+            if (!value) return "-";
+            const date = new Date(value);
+            if (Number.isNaN(date.getTime())) return "-";
+            const pad = (num) => String(num).padStart(2, "0");
+            return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
           };
-
-          const removeAddress = async (index) => {
-            try {
-              const address = addresses.value[index];
-              if (!address) return;
-              await client.removeAddress(address, mode.value);
-              if (mode.value !== "test") {
-                listRegistry[mode.value]?.value.splice(index, 1);
-              }
-              tipMessage.value = "";
-            } catch (error) {
-              tipMessage.value = `ERROR: ${formatError(error)}`;
-            }
-          };
-
-          const testAddressWithPattern = (pattern, address) => {
-            if (pattern.toLowerCase() === address.toLowerCase()) {
-              return true;
-            }
-            try {
-              const regex = new RegExp(pattern, "i");
-              return !!regex.test(address);
-            } catch (e) {
-              return false;
-            }
-          };
-
-          const testAddress = () => {
-            const address = inputAddress.value.trim();
-            if (!address) {
-              testList.value = [];
-              return;
-            }
-
-            const results = [];
-            const targets = [
-              { patterns: blockList.value, result: "block" },
-              { patterns: whiteList.value, result: "white" },
-            ];
-
-            for (const { patterns, result } of targets) {
-              for (const pattern of patterns) {
-                if (testAddressWithPattern(pattern, address)) {
-                  results.push({ address: pattern, result });
-                }
-              }
-            }
-
-            testList.value = results;
-          };
-
-          const loadMails = async () => {
-            try {
-              loading.value = true;
-              const result = await client.loadMails(50, cursor.value);
-              mailList.value = [...mailList.value, ...result.mails];
-              cursor.value = result.cursor;
-              hasMore.value = !!result.cursor;
-              tipMessage.value = "";
-            } catch (error) {
-              tipMessage.value = `ERROR: ${formatError(error)}`;
-            } finally {
-              loading.value = false;
-            }
-          };
-
-          const loadMoreMails = async () => {
-            await loadMails();
-          };
-
-          const viewMail = async (id) => {
-            try {
-              loading.value = true;
-              const mail = await client.loadMailDetail(id);
-              currentMail.value = mail;
-              func.value = "mail-detail";
-              tipMessage.value = "";
-            } catch (error) {
-              tipMessage.value = `ERROR: ${formatError(error)}`;
-            } finally {
-              loading.value = false;
-            }
-          };
-
-          const backToList = () => {
-            func.value = "mails";
-            currentMail.value = null;
-          };
-
-          const formatFullDateTime = (timestamp) => {
-            if (!timestamp) return "-";
-            try {
-              const date = new Date(timestamp);
-              const year = date.getFullYear();
-              const month = String(date.getMonth() + 1).padStart(2, "0");
-              const day = String(date.getDate()).padStart(2, "0");
-              const hours = String(date.getHours()).padStart(2, "0");
-              const minutes = String(date.getMinutes()).padStart(2, "0");
-              const seconds = String(date.getSeconds()).padStart(2, "0");
-
-              return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-            } catch (e) {
-              return "-";
-            }
-          };
-
-          let resizeObserver = null;
 
           const syncFrameHeight = () => {
             const frame = document.getElementById("mail-content-frame");
             if (!frame) return;
-
-            const updateHeight = () => {
-              try {
-                const doc = frame.contentDocument || (frame.contentWindow && frame.contentWindow.document);
-                if (!doc) {
-                  // Fallback height if can't access document
-                  frame.style.height = "500px";
-                  return;
-                }
-
-                // Wait for content to be fully rendered
-                setTimeout(() => {
-                  const body = doc.body;
-                  const html = doc.documentElement;
-
-                  if (!body || !html) {
-                    frame.style.height = "500px";
-                    return;
-                  }
-
-                  // Calculate the maximum height needed
-                  let height = Math.max(body.scrollHeight || 0, body.offsetHeight || 0, html.scrollHeight || 0, html.offsetHeight || 0, body.getBoundingClientRect().height || 0);
-
-                  // Add some padding to prevent cutoff
-                  height = Math.max(height + 20, 200);
-
-                  frame.style.height = height + "px";
-
-                  // Set up ResizeObserver for dynamic content changes
-                  if ("ResizeObserver" in window && !resizeObserver) {
-                    resizeObserver = new ResizeObserver(() => {
-                      const newHeight = Math.max(body.scrollHeight || 0, body.offsetHeight || 0, html.scrollHeight || 0, html.offsetHeight || 0, body.getBoundingClientRect().height || 0) + 20;
-
-                      if (newHeight > 200) {
-                        frame.style.height = newHeight + "px";
-                      }
-                    });
-                    resizeObserver.observe(body);
-                    if (html !== body) {
-                      resizeObserver.observe(html);
-                    }
-                  }
-
-                  // Also check for images loading
-                  const images = doc.querySelectorAll("img");
-                  if (images.length > 0) {
-                    let loadedCount = 0;
-                    images.forEach((img) => {
-                      if (img.complete) {
-                        loadedCount++;
-                      } else {
-                        img.addEventListener("load", () => {
-                          loadedCount++;
-                          if (loadedCount === images.length) {
-                            updateHeight();
-                          }
-                        });
-                      }
-                    });
-                  }
-                }, 100);
-              } catch (err) {
-                // Cross-origin restriction or other errors
-                console.warn("Frame height sync error:", err);
-                frame.style.height = "500px";
-              }
-            };
-
-            updateHeight();
-
-            // Also retry after a delay to catch late-rendering content
-            setTimeout(updateHeight, 300);
-            setTimeout(updateHeight, 800);
+            try {
+              const doc = frame.contentDocument || frame.contentWindow?.document;
+              if (!doc) return;
+              const height = Math.max(doc.body?.scrollHeight || 0, doc.documentElement?.scrollHeight || 0, 200);
+              frame.style.height = `${height}px`;
+            } catch (error) {
+              frame.style.height = "500px";
+            }
           };
 
-          watch(mode, () => {
-            inputAddress.value = "";
-          });
-
-          watch(func, () => {
-            if (func.value !== "mail-detail") {
-              showScrollTop.value = false;
-            }
-            toggleScrollTop();
-          });
-
-          watch(currentMail, (newVal, oldVal) => {
-            // Clean up observer when switching mails
-            if (oldVal && newVal !== oldVal && resizeObserver) {
-              resizeObserver.disconnect();
-              resizeObserver = null;
-            }
-          });
-
-          onMounted(async () => {
-            toggleScrollTop();
-            window.addEventListener("scroll", toggleScrollTop, { passive: true });
+          const ensureSummary = async () => {
+            if (!state.currentMail || state.summary.loading || state.summary.text) return;
+            state.summary.loading = true;
+            state.summary.error = "";
             try {
-              const tg = window.Telegram && window.Telegram.WebApp;
-              client.tma = tg?.initData ?? "";
-              tg?.ready?.();
-
-              if (func.value === "mails") {
-                await loadMails();
-              } else if (func.value === "list") {
-                const { block = [], white = [] } = await client.loadAddress();
-                blockList.value = block;
-                whiteList.value = white;
+              const { source, text } = await client.loadMailSummary(state.currentMail.id);
+              state.summary.source = source;
+              if (source === "error" || source === "unavailable") {
+                state.summary.error = text;
+                state.summary.text = "";
+              } else {
+                state.summary.text = text;
               }
             } catch (error) {
-              tipMessage.value = `ERROR: ${formatError(error)}`;
+              state.summary.error = safeError(error);
+              state.summary.source = "error";
+              state.summary.text = "";
+            } finally {
+              state.summary.loading = false;
+            }
+          };
+
+          const loadAddress = async () => {
+            try {
+              const { block = [], white = [] } = await client.loadAddress();
+              state.lists.block = block;
+              state.lists.white = white;
+              state.tipMessage = "";
+            } catch (error) {
+              state.tipMessage = `ERROR: ${safeError(error)}`;
+            }
+          };
+
+          const loadMails = async (reset = false) => {
+            if (!reset && state.loading) return;
+            state.loading = true;
+            if (reset) {
+              state.mailList = [];
+              state.cursor = null;
+              state.hasMore = false;
+            }
+            try {
+              const { mails = [], cursor } = await client.loadMails(50, reset ? null : state.cursor);
+              state.mailList.push(...mails);
+              state.cursor = cursor ?? null;
+              state.hasMore = Boolean(cursor);
+              state.tipMessage = "";
+            } catch (error) {
+              state.tipMessage = `ERROR: ${safeError(error)}`;
+            } finally {
+              state.loading = false;
+            }
+          };
+
+          const loadMoreMails = () => loadMails(false);
+          const refreshMails = () => loadMails(true);
+
+          const setMailViewMode = async (mode) => {
+            if (state.mailViewMode === mode) {
+              if (mode === "html") {
+                await nextTick();
+                syncFrameHeight();
+              }
+              if (mode === "summary") ensureSummary();
+              return;
+            }
+            state.mailViewMode = mode;
+          };
+
+          const viewMail = async (id) => {
+            if (!id) return;
+            state.loading = true;
+            try {
+              state.currentMail = await client.loadMailDetail(id);
+              state.func = "mail-detail";
+              resetSummary();
+              if (state.currentMail.html) {
+                state.mailViewMode = "html";
+              } else if (state.currentMail.text) {
+                state.mailViewMode = "text";
+              } else {
+                state.mailViewMode = "summary";
+              }
+              state.tipMessage = "";
+            } catch (error) {
+              state.tipMessage = `ERROR: ${safeError(error)}`;
+            } finally {
+              state.loading = false;
+            }
+          };
+
+          const backToList = () => {
+            resetSummary();
+            state.currentMail = null;
+            state.mailViewMode = "html";
+            state.func = "mails";
+          };
+
+          const addAddress = async () => {
+            const address = state.inputAddress.trim();
+            if (!address) return;
+            try {
+              await client.addAddress(address, state.mode);
+              if (state.mode !== "test") {
+                state.lists[state.mode]?.push(address);
+              }
+              state.inputAddress = "";
+              state.tipMessage = "";
+            } catch (error) {
+              state.tipMessage = `ERROR: ${safeError(error)}`;
+            }
+          };
+
+          const removeAddress = async (index) => {
+            const list = state.lists[state.mode];
+            const target = list?.[index];
+            if (!target) return;
+            try {
+              await client.removeAddress(target, state.mode);
+              list.splice(index, 1);
+              state.tipMessage = "";
+            } catch (error) {
+              state.tipMessage = `ERROR: ${safeError(error)}`;
+            }
+          };
+
+          const testAddress = () => {
+            const address = state.inputAddress.trim();
+            if (!address) {
+              state.testList = [];
+              return;
+            }
+            const results = [];
+            for (const pattern of state.lists.block) {
+              if (matchPattern(pattern, address)) results.push({ address: pattern, result: "block" });
+            }
+            for (const pattern of state.lists.white) {
+              if (matchPattern(pattern, address)) results.push({ address: pattern, result: "white" });
+            }
+            state.testList = results;
+          };
+
+          const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
+          const handleScroll = () => {
+            state.showScrollTop = window.scrollY > 320 && state.func === "mail-detail";
+          };
+
+          watch(
+            () => state.mode,
+            () => {
+              state.inputAddress = "";
+              if (state.mode === "test") state.testList = [];
+            }
+          );
+
+          watch(
+            () => state.mailViewMode,
+            async (mode) => {
+              if (mode === "html") {
+                await nextTick();
+                syncFrameHeight();
+              } else if (mode === "summary") {
+                ensureSummary();
+              }
+            }
+          );
+
+          watch(
+            () => state.func,
+            (value) => {
+              handleScroll();
+              if (value === "list" && !state.lists.block.length && !state.lists.white.length) {
+                loadAddress();
+              }
+              if (value === "mails" && !state.mailList.length) {
+                loadMails(true);
+              }
+            }
+          );
+
+          onMounted(async () => {
+            handleScroll();
+            window.addEventListener("scroll", handleScroll, { passive: true });
+
+            bindTelegramTheme();
+            const tg = window.Telegram?.WebApp;
+            client.setToken(tg?.initData ?? "");
+            tg?.ready?.();
+
+            if (state.func === "mails") {
+              await loadMails(true);
+            } else if (state.func === "list") {
+              await loadAddress();
             }
           });
 
           onUnmounted(() => {
-            window.removeEventListener("scroll", toggleScrollTop);
-            if (resizeObserver) {
-              resizeObserver.disconnect();
-              resizeObserver = null;
-            }
+            window.removeEventListener("scroll", handleScroll);
           });
 
           return {
+            ...toRefs(state),
             addresses,
-            tipMessage,
-            inputAddress,
             inputPlaceholder,
-            sendMail,
-            mode,
-            func,
+            summaryLabel,
+            textMailHtml,
+            formatFullDateTime,
+            syncFrameHeight,
+            loadMoreMails,
+            refreshMails,
+            setMailViewMode,
+            viewMail,
+            backToList,
             addAddress,
             removeAddress,
             testAddress,
-            loading,
-            mailList,
-            currentMail,
-            hasMore,
-            loadMoreMails,
-            viewMail,
-            backToList,
-            formatFullDateTime,
-            syncFrameHeight,
             scrollToTop,
-            showScrollTop,
           };
         },
       }).mount("#app");
