@@ -28,18 +28,18 @@
 
       :root[data-theme="dark"] {
         color-scheme: dark;
-        --c-bg: #0f172a;
-        --c-surface: #111827;
-        --c-surface-2: #1e293b;
+        --c-bg: #000;
+        --c-surface: #000;
+        --c-surface-2: #0e141c;
         --c-text: #e2e8f0;
         --c-text-soft: #cbd5f5;
         --c-text-muted: #94a3b8;
         --c-border: #1f2937;
         --c-border-soft: #273449;
-        --c-primary: #2bb8ff;
-        --c-primary-hover: #5ecbff;
-        --c-danger: #f87171;
-        --c-danger-hover: #dc2626;
+        --c-primary: #1c77a4;
+        --c-primary-hover: #316983;
+        --c-danger: #b15151;
+        --c-danger-hover: #b91f1f;
         --c-tip-bg: rgba(255, 214, 102, 0.08);
         --c-tip-border: rgba(255, 214, 102, 0.4);
         --c-tip-text: #facc15;
@@ -556,11 +556,11 @@
         <div class="panel__body">
           <div class="mail-meta">
             <div class="mail-meta__row">
-              <span class="mail-meta__label">发件人</span>
+              <span class="mail-meta__label">发件邮箱</span>
               <span class="mail-meta__value">{{ currentMail.from }}</span>
             </div>
             <div class="mail-meta__row">
-              <span class="mail-meta__label">收件人</span>
+              <span class="mail-meta__label">收件邮箱</span>
               <span class="mail-meta__value">{{ currentMail.to }}</span>
             </div>
             <div v-if="currentMail.receivedAt" class="mail-meta__row">
