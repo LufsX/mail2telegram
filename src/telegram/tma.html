@@ -578,7 +578,7 @@
           </div>
 
           <div v-if="mailViewMode === 'html' && currentMail.html" class="mail-view--html">
-            <iframe id="mail-content-frame" :srcdoc="currentMail.html" title="邮件正文预览" @load="syncFrameHeight"></iframe>
+            <iframe id="mail-content-frame" :srcdoc="'<style>body{margin:0;padding:0;}</style>' + currentMail.html" title="邮件正文预览" @load="syncFrameHeight"></iframe>
           </div>
           <div v-else-if="mailViewMode === 'text' && currentMail.text" class="mail-view">
             <div class="mail-text" v-html="textMailHtml"></div>

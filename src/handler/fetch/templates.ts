@@ -258,7 +258,7 @@ export function buildHtmlPreview(metadata: MailPreviewMetadata, bodyHtml: string
       <button id="download-btn" type="button" data-download-exclude="true">下载 HTML</button>
     </div>
     <div class="content-wrapper">
-      <iframe id="mail-frame" title="邮件正文预览" srcdoc="${iframeContent}"></iframe>
+      <iframe id="mail-frame" title="邮件正文预览" srcdoc="<style>body{margin:0;padding:0;}</style>${iframeContent}"></iframe>
     </div>
   </div>
   <script data-download-exclude="true">
