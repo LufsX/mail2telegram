@@ -4,6 +4,7 @@ import type { Environment } from "../../types";
 import { validate } from "@tma.js/init-data-node/web";
 import { json, Router } from "itty-router";
 import { Dao } from "../../db";
+import { getMailSummary } from "../../mail";
 import { createTelegramBotAPI, telegramCommands, telegramWebhookHandler, tmaHTML } from "../../telegram";
 import { buildHtmlFallbackFromText, buildHtmlPreview, buildMailMetadata, buildPlainPreview, stripHtmlTags } from "./templates";
 
@@ -136,7 +137,7 @@ function createRouter(env: Environment): RouterType {
   });
 
   router.get("/api/mails/list", auth, async (req: IRequest): Promise<any> => {
-    const limit = parseInt((req.query?.limit as string) || "50");
+    const limit = Number.parseInt((req.query?.limit as string) || "50", 10);
     const cursor = req.query?.cursor as string | undefined;
     return await dao.listMails(limit, cursor);
   });
@@ -148,6 +149,15 @@ function createRouter(env: Environment): RouterType {
       throw new HTTPError(404, "Email not found");
     }
     return mail;
+  });
+
+  router.get("/api/mails/:id/summary", auth, async (req: IRequest): Promise<any> => {
+    const id = req.params.id;
+    const mail = await dao.loadMailCache(id);
+    if (!mail) {
+      throw new HTTPError(404, "Email not found");
+    }
+    return await getMailSummary(mail, env);
   });
 
   /// Webhook

@@ -4,6 +4,11 @@ import { Dao } from "../db";
 import { checkAddressStatus } from "./check";
 import { sendOpenAIRequest } from "./openai";
 
+export interface MailSummaryResult {
+  text: string;
+  source: "cache" | "generated" | "unavailable" | "error";
+}
+
 export interface EmailDetailParams {
   text: string;
   reply_markup: Telegram.InlineKeyboardMarkup;
@@ -12,7 +17,19 @@ export interface EmailDetailParams {
 }
 
 function escapeMarkdownV2(text: string): string {
-  return text.replace(/\\/g, "\\\\").replace(/([_\*\[\]\(\)~`>#+\-=|{}.!])/g, "\\$1");
+  // eslint-disable-next-line no-useless-escape
+  const specials = new Set(["_", "*", "[", "]", "(", ")", "~", "`", ">", "#", "+", "-", "=", "|", "{", "}", ".", "!"]);
+  let result = "";
+  for (const char of text) {
+    if (char === "\\") {
+      result += "\\\\";
+    } else if (specials.has(char)) {
+      result += `\\${char}`;
+    } else {
+      result += char;
+    }
+  }
+  return result;
 }
 
 export type EmailRender = (mail: EmailCache, env: Environment) => Promise<EmailDetailParams>;
@@ -98,36 +115,79 @@ export async function renderEmailPreviewMode(mail: EmailCache, env: Environment)
 }
 
 export async function renderEmailSummaryMode(mail: EmailCache, env: Environment): Promise<EmailDetailParams> {
+  const req = renderEmailDetail("", mail.id);
+  const summary = await getMailSummary(mail, env);
+  req.text = summary.text;
+  return req;
+}
+
+const htmlTagRegex = /<[^>]+>/g;
+
+function extractMailContent(mail: EmailCache): string {
+  if (mail.text && mail.text.trim().length > 0) {
+    return mail.text;
+  }
+  if (mail.html && mail.html.trim().length > 0) {
+    return mail.html.replace(htmlTagRegex, " ");
+  }
+  return "";
+}
+
+export async function getMailSummary(mail: EmailCache, env: Environment): Promise<MailSummaryResult> {
   const { OPENAI_API_KEY: key, OPENAI_COMPLETIONS_API: endpointRaw, OPENAI_CHAT_MODEL: modelRaw, SUMMARY_TARGET_LANG: targetLangRaw, MAIL_TTL: mailTtlRaw, DB } = env;
   const endpoint = endpointRaw || "https://api.openai.com/v1/chat/completions";
   const model = modelRaw || "gpt-4o-mini";
   const targetLang = (targetLangRaw || "english").trim();
   const cacheLang = targetLang.toLowerCase();
   const ttl = Number.parseInt(mailTtlRaw || "", 10) || 60 * 60 * 24;
-  const req = renderEmailDetail("", mail.id);
+  const dao = new Dao(DB);
 
   try {
-    const dao = new Dao(DB);
     const cachedSummary = await dao.loadMailSummary(mail.id, cacheLang);
     if (cachedSummary) {
-      req.text = cachedSummary;
-      return req;
+      return {
+        text: cachedSummary,
+        source: "cache",
+      };
     }
 
-    const prompt = `使用七十个词以内的简洁语言，保留关键信息，用 ${targetLang} 语言总结以下邮件内容，总结内容可以分行显示，若无实际内容可以总结，返回简短后的原文\n\n${mail.text}`;
-    const summary = (await sendOpenAIRequest(key ?? "", endpoint, model, prompt)).trim();
+    const content = extractMailContent(mail);
+    if (!key) {
+      return {
+        text: "AI 摘要功能未启用",
+        source: "unavailable",
+      };
+    }
+
+    if (!content) {
+      return {
+        text: "无可摘要内容",
+        source: "unavailable",
+      };
+    }
+
+    const prompt = `使用七十个词以内的简洁语言，保留关键信息，用 ${targetLang} 语言，链接不算进字数，总结内容可以分行显示，若无实际内容可以总结，返回简短后的原文，邮件内容如下\n\n${content}`;
+    const summary = (await sendOpenAIRequest(key, endpoint, model, prompt)).trim();
+
     if (summary) {
       await dao.saveMailSummary(mail.id, cacheLang, summary, ttl);
-      req.text = summary;
-    } else {
-      req.text = "AI 摘要生成失败";
+      return {
+        text: summary,
+        source: "generated",
+      };
     }
+
+    return {
+      text: "AI 摘要生成失败",
+      source: "error",
+    };
   } catch (e) {
     console.error(e);
-    req.text = "AI 摘要生成失败";
+    return {
+      text: "AI 摘要生成失败",
+      source: "error",
+    };
   }
-
-  return req;
 }
 
 export async function renderEmailDebugMode(mail: EmailCache, env: Environment): Promise<EmailDetailParams> {

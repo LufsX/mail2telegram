@@ -16,6 +16,16 @@ export interface EmailCache {
   receivedAt?: number;
 }
 
+export interface EmailListItem {
+  id: string;
+  from: string;
+  to: string;
+  subject: string;
+  receivedAt?: number;
+  hasHtml: boolean;
+  hasText: boolean;
+}
+
 export type MaxEmailSizePolicy = "unhandled" | "continue" | "truncate";
 
 export type BlockPolicy = "reject" | "forward" | "telegram";

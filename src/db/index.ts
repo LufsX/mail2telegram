@@ -1,5 +1,5 @@
 import type { KVNamespace } from "@cloudflare/workers-types";
-import type { EmailCache, EmailHandleStatus } from "../types";
+import type { EmailCache, EmailHandleStatus, EmailListItem } from "../types";
 
 export type AddressListStoreKey = "BLOCK_LIST" | "WHITE_LIST";
 
@@ -141,9 +141,9 @@ export class Dao {
     }
   }
 
-  async listMails(limit: number = 50, cursor?: string): Promise<{ mails: EmailCache[]; cursor?: string }> {
+  async listMails(limit: number = 50, cursor?: string): Promise<{ mails: EmailListItem[]; cursor?: string }> {
     const list = await this.db.list({ prefix: "", limit, cursor });
-    const mails: EmailCache[] = [];
+    const mails: EmailListItem[] = [];
 
     for (const key of list.keys) {
       // 只获取邮件缓存，排除其他类型的键
@@ -155,7 +155,15 @@ export class Dao {
         if (raw) {
           const cache = JSON.parse(raw) as EmailCache;
           if (cache.id && cache.from && cache.to) {
-            mails.push(cache);
+            mails.push({
+              id: cache.id,
+              from: cache.from,
+              to: cache.to,
+              subject: cache.subject || "",
+              receivedAt: cache.receivedAt,
+              hasHtml: Boolean(cache.html && cache.html.length > 0),
+              hasText: Boolean(cache.text && cache.text.length > 0),
+            });
           }
         }
       } catch (e) {
