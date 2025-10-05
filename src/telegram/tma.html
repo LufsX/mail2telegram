@@ -24,6 +24,7 @@
         --c-tip-bg: #fff8e1;
         --c-tip-border: #f6c453;
         --c-tip-text: #8d5d0b;
+        --c-html-bg: #f4f5f7;
       }
 
       :root[data-theme="dark"] {
@@ -43,6 +44,7 @@
         --c-tip-bg: rgba(255, 214, 102, 0.08);
         --c-tip-border: rgba(255, 214, 102, 0.4);
         --c-tip-text: #facc15;
+        --c-html-bg: #f4f5f7;
       }
 
       * {
@@ -334,7 +336,7 @@
         width: 100%;
         border: none;
         display: block;
-        background: var(--c-surface);
+        background: var(--c-html-bg);
         margin: 0;
       }
 
@@ -437,10 +439,20 @@
         bottom: 80px;
         box-shadow: 0 12px 32px rgba(15, 23, 42, 0.2);
         z-index: 999;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(10px);
+        transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s, box-shadow 0.2s ease, background 0.2s ease;
+      }
+
+      .scroll-top.show {
+        opacity: 0.7;
+        visibility: visible;
+        transform: translateY(0);
       }
 
       .scroll-top:hover {
-        transform: translateY(-2px);
+        opacity: 1;
         box-shadow: 0 16px 36px rgba(15, 23, 42, 0.24);
       }
 
@@ -666,7 +678,7 @@
         </div>
       </section>
 
-      <button v-if="showScrollTop" class="scroll-top primary" @click="scrollToTop" aria-label="返回顶部">↑ 返回顶部</button>
+      <button :class="['scroll-top', 'primary', { show: showScrollTop }]" @click="scrollToTop" aria-label="返回顶部">↑ 返回顶部</button>
     </div>
 
     <script>
