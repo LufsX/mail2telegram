@@ -16,6 +16,8 @@ export class Dao {
     this.saveMailCache = this.saveMailCache.bind(this);
     this.loadMailSummary = this.loadMailSummary.bind(this);
     this.saveMailSummary = this.saveMailSummary.bind(this);
+    this.clearMailSummaries = this.clearMailSummaries.bind(this);
+    this.deleteMailSummary = this.deleteMailSummary.bind(this);
   }
 
   async loadArrayFromDB(key: AddressListStoreKey): Promise<string[]> {
@@ -112,18 +114,44 @@ export class Dao {
     await this.db.put(`TelegramID2MailID:${id}`, mailID, { expirationTtl: ttl });
   }
 
+  async clearMailSummaries(): Promise<number> {
+    let cursor: string | undefined;
+    const prefix = "MailSummary:";
+    let deleted = 0;
+    do {
+      const list = await this.db.list({ prefix, cursor });
+      for (const key of list.keys) {
+        await this.db.delete(key.name);
+        deleted++;
+      }
+      cursor = !list.list_complete && list.cursor ? list.cursor : undefined;
+    } while (cursor);
+    return deleted;
+  }
+
+  async deleteMailSummary(id: string): Promise<number> {
+    let cursor: string | undefined;
+    const prefix = "MailSummary:";
+    let deleted = 0;
+    do {
+      const list = await this.db.list({ prefix, cursor });
+      for (const key of list.keys) {
+        if (key.name.endsWith(`:${id}`)) {
+          await this.db.delete(key.name);
+          deleted++;
+        }
+      }
+      cursor = !list.list_complete && list.cursor ? list.cursor : undefined;
+    } while (cursor);
+    return deleted;
+  }
+
   async deleteMail(id: string): Promise<void> {
     // Delete the mail cache itself
     await this.db.delete(id);
 
     // Delete all mail summaries
-    const summaryPrefix = `MailSummary:`;
-    const summaryList = await this.db.list({ prefix: summaryPrefix });
-    for (const key of summaryList.keys) {
-      if (key.name.endsWith(`:${id}`)) {
-        await this.db.delete(key.name);
-      }
-    }
+    await this.deleteMailSummary(id);
 
     // Delete all TelegramID to MailID mappings that point to this mail
     const telegramMappingPrefix = `TelegramID2MailID:`;

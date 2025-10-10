@@ -24,7 +24,7 @@
         --c-tip-bg: #fff8e1;
         --c-tip-border: #f6c453;
         --c-tip-text: #8d5d0b;
-        --c-html-bg: #f4f5f7;
+        --c-html-bg: #fff;
       }
 
       :root[data-theme="dark"] {
@@ -44,7 +44,7 @@
         --c-tip-bg: rgba(255, 214, 102, 0.08);
         --c-tip-border: rgba(255, 214, 102, 0.4);
         --c-tip-text: #facc15;
-        --c-html-bg: #f4f5f7;
+        --c-html-bg: #fff;
       }
 
       * {
@@ -69,13 +69,6 @@
         gap: 16px;
       }
 
-      .panel {
-        border: 1px solid var(--c-border);
-        border-radius: 1px;
-        background: var(--c-surface);
-        overflow: hidden;
-      }
-
       .panel__header {
         display: flex;
         justify-content: space-between;
@@ -84,13 +77,93 @@
         padding: 20px 24px 12px;
         border-bottom: 1px solid var(--c-border-soft);
         background: var(--c-surface);
+        position: relative;
       }
 
-      .panel__header h3 {
+      .panel__title {
         margin: 0;
-        font-size: 1.25rem;
+        padding: 2px 2px;
+        border-radius: 1px;
+        background: transparent;
+        border: 1px solid transparent;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 1.15rem;
         font-weight: 600;
         color: var(--c-text);
+        cursor: pointer;
+        transition: background 0.2s ease, border-color 0.2s ease;
+      }
+
+      .panel__title:hover {
+        background: var(--c-surface-2);
+        border-color: var(--c-border);
+      }
+
+      .panel__title:focus {
+        outline: none;
+        border-color: var(--c-primary);
+      }
+
+      .panel__title small {
+        font-size: 0.8125rem;
+        color: var(--c-text-muted);
+        font-weight: 500;
+      }
+
+      .panel__menu {
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 24px;
+        width: 10em;
+        padding: 10px;
+        border-radius: 1px;
+        border: 1px solid var(--c-border-soft);
+        background: var(--c-surface-2);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.14);
+        z-index: 20;
+      }
+
+      .panel__menu button {
+        padding: 6px 12px;
+        border-radius: 1px;
+        background: var(--c-surface);
+        border: 1px solid var(--c-border);
+        color: var(--c-text);
+      }
+
+      .panel__menu button.active {
+        background: var(--c-primary);
+        border-color: var(--c-primary);
+        color: #fff;
+      }
+
+      .panel-menu-enter-active,
+      .panel-menu-leave-active {
+        transition: all 0.18s ease;
+      }
+
+      .panel-menu-enter-from,
+      .panel-menu-leave-to {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+
+      .panel {
+        border: 1px solid var(--c-border);
+        border-radius: 1px;
+        background: var(--c-surface);
+        overflow: hidden;
+      }
+
+      .panel__actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
       }
 
       .panel__body {
@@ -98,7 +171,7 @@
       }
 
       button {
-        padding: 8px 14px;
+        padding: 6px 12px;
         border-radius: 1px;
         border: 1px solid var(--c-border);
         background: transparent;
@@ -108,6 +181,7 @@
         font-weight: 500;
         cursor: pointer;
         transition: all 0.2s ease;
+        white-space: nowrap;
       }
 
       button:hover {
@@ -154,7 +228,8 @@
       textarea,
       select {
         width: 100%;
-        padding: 8px 12px;
+        height: 100%;
+        padding: 6px 12px;
         border-radius: 1px;
         border: 1px solid var(--c-border);
         background: var(--c-surface);
@@ -172,6 +247,7 @@
       }
 
       textarea {
+        flex: 1;
         min-height: 120px;
         resize: vertical;
       }
@@ -531,8 +607,16 @@
     <div id="app" class="app">
       <section v-if="func === 'mails'" class="panel">
         <header class="panel__header">
-          <h3>邮件列表</h3>
-          <button @click="refreshMails" :disabled="loading">刷新</button>
+          <button class="panel__title" :class="{ active: menuOpen }" type="button" @click="toggleMenu">邮件列表</button>
+          <div class="panel__actions">
+            <button class="danger" @click="clearSummaryCache" :disabled="clearingSummaryCache">清除摘要缓存</button>
+            <button @click="refreshMails" :disabled="loading">刷新</button>
+          </div>
+          <transition name="panel-menu">
+            <div v-if="menuOpen" class="panel__menu">
+              <button v-for="item in menuItems" :key="item.value" :class="{ active: func === item.value }" @click="switchPage(item.value)">{{ item.label }}</button>
+            </div>
+          </transition>
         </header>
         <div class="panel__body">
           <p v-if="tipMessage" :class="['tip', { error: tipMessage.startsWith('ERROR') }]">{{ tipMessage }}</p>
@@ -562,10 +646,19 @@
 
       <section v-if="func === 'mail-detail' && currentMail" class="panel">
         <header class="panel__header">
-          <h3>邮件详情</h3>
-          <button @click="backToList">← 返回列表</button>
+          <button class="panel__title" :class="{ active: menuOpen }" type="button" @click="toggleMenu">邮件详情</button>
+          <div class="panel__actions">
+            <button class="danger" @click="deleteCurrentMail" :disabled="deletingMail">删除邮件</button>
+            <button @click="backToList">← 返回列表</button>
+          </div>
+          <transition name="panel-menu">
+            <div v-if="menuOpen" class="panel__menu">
+              <button v-for="item in menuItems" :key="item.value" :class="{ active: func === item.value }" @click="switchPage(item.value)">{{ item.label }}</button>
+            </div>
+          </transition>
         </header>
         <div class="panel__body">
+          <p v-if="tipMessage" :class="['tip', { error: tipMessage.startsWith('ERROR') }]">{{ tipMessage }}</p>
           <div class="mail-meta">
             <div class="mail-meta__row">
               <span class="mail-meta__label">发件邮箱</span>
@@ -612,12 +705,19 @@
 
       <section v-if="func === 'list'" class="panel">
         <header class="panel__header">
-          <h3>地址列表管理</h3>
-          <select v-model="mode" aria-label="选择列表类型">
-            <option value="block">黑名单</option>
-            <option value="white">白名单</option>
-            <option value="test">测试地址</option>
-          </select>
+          <button class="panel__title" :class="{ active: menuOpen }" type="button" @click="toggleMenu">地址列表管理</button>
+          <div class="panel__actions">
+            <select v-model="mode" aria-label="选择列表类型">
+              <option value="block">黑名单</option>
+              <option value="white">白名单</option>
+              <option value="test">测试地址</option>
+            </select>
+          </div>
+          <transition name="panel-menu">
+            <div v-if="menuOpen" class="panel__menu">
+              <button v-for="item in menuItems" :key="item.value" :class="{ active: func === item.value }" @click="switchPage(item.value)">{{ item.label }}</button>
+            </div>
+          </transition>
         </header>
         <div class="panel__body">
           <p v-if="tipMessage" :class="['tip', { error: tipMessage.startsWith('ERROR') }]">{{ tipMessage }}</p>
@@ -654,7 +754,12 @@
 
       <section v-if="func === 'sendmail'" class="panel">
         <header class="panel__header">
-          <h3>发送邮件</h3>
+          <button class="panel__title" :class="{ active: menuOpen }" type="button" @click="toggleMenu">发送邮件</button>
+          <transition name="panel-menu">
+            <div v-if="menuOpen" class="panel__menu">
+              <button v-for="item in menuItems" :key="item.value" :class="{ active: func === item.value }" @click="switchPage(item.value)">{{ item.label }}</button>
+            </div>
+          </transition>
         </header>
         <div class="panel__body">
           <p v-if="tipMessage" :class="['tip', { error: tipMessage.startsWith('ERROR') }]">{{ tipMessage }}</p>
@@ -780,6 +885,8 @@
           addAddress: (address, type) => request("/api/address/add", { method: "POST", body: { address, type } }),
           removeAddress: (address, type) => request("/api/address/remove", { method: "POST", body: { address, type } }),
           loadAddress: () => request("/api/address/list"),
+          clearSummaryCache: () => request("/api/summary/clear", { method: "POST" }),
+          deleteMail: (id) => request(`/api/mails/${id}`, { method: "DELETE" }),
           loadMails: (limit, cursor) => {
             const params = new URLSearchParams();
             if (limit) params.set("limit", limit);
@@ -789,6 +896,7 @@
           },
           loadMailDetail: (id) => request(`/api/mails/${id}`),
           loadMailSummary: (id) => request(`/api/mails/${id}/summary`),
+          refreshMailSummary: (id) => request(`/api/mails/${id}/summary/refresh`, { method: "POST" }),
         };
       };
 
@@ -798,10 +906,12 @@
         setup() {
           const params = new URLSearchParams(window.location.search);
           const state = reactive({
-            func: params.get("func") || "list",
+            func: params.get("func") || "mails",
             mode: params.get("mode") || "block",
             tipMessage: "",
             loading: false,
+            clearingSummaryCache: false,
+            menuOpen: false,
             cursor: null,
             hasMore: false,
             mailList: [],
@@ -813,9 +923,15 @@
             lists: { block: [], white: [] },
             testList: [],
             showScrollTop: false,
+            deletingMail: false,
           });
 
           const client = createClient("");
+          const menuItems = [
+            { value: "mails", label: "邮件列表" },
+            { value: "list", label: "地址管理" },
+            { value: "sendmail", label: "发送邮件" },
+          ];
 
           const placeholders = {
             block: "新建黑名单正则",
@@ -860,6 +976,29 @@
             }
           };
 
+          const toggleMenu = () => {
+            state.menuOpen = !state.menuOpen;
+          };
+
+          const switchPage = (value) => {
+            if (value === "mail-detail") return;
+            state.menuOpen = false;
+            resetSummary();
+            state.currentMail = null;
+            state.mailViewMode = "html";
+            if (value === "mails") {
+              state.func = "mails";
+              return;
+            }
+            if (value === "list") {
+              state.func = "list";
+              return;
+            }
+            if (value === "sendmail") {
+              state.func = "sendmail";
+            }
+          };
+
           const ensureSummary = async () => {
             if (!state.currentMail || state.summary.loading || state.summary.text) return;
             state.summary.loading = true;
@@ -872,6 +1011,31 @@
                 state.summary.text = "";
               } else {
                 state.summary.text = text;
+              }
+            } catch (error) {
+              state.summary.error = safeError(error);
+              state.summary.source = "error";
+              state.summary.text = "";
+            } finally {
+              state.summary.loading = false;
+            }
+          };
+
+          const refreshSummary = async () => {
+            if (!state.currentMail) return;
+            state.summary.loading = true;
+            state.summary.error = "";
+            state.summary.text = "";
+            state.tipMessage = "";
+            try {
+              const { source, text } = await client.refreshMailSummary(state.currentMail.id);
+              state.summary.source = source;
+              if (source === "error" || source === "unavailable") {
+                state.summary.error = text;
+                state.summary.text = "";
+              } else {
+                state.summary.text = text;
+                state.tipMessage = "AI 摘要已重新生成";
               }
             } catch (error) {
               state.summary.error = safeError(error);
@@ -917,13 +1081,37 @@
           const loadMoreMails = () => loadMails(false);
           const refreshMails = () => loadMails(true);
 
+          const clearSummaryCache = async () => {
+            if (state.clearingSummaryCache) return;
+            const confirmClear = window.confirm("确定要清除所有 AI 摘要缓存吗？");
+            if (!confirmClear) {
+              return;
+            }
+            state.clearingSummaryCache = true;
+            state.tipMessage = "";
+            try {
+              const { deleted = 0 } = await client.clearSummaryCache();
+              resetSummary();
+              state.tipMessage = `已清除 ${deleted} 条 AI 摘要缓存`;
+            } catch (error) {
+              state.tipMessage = `ERROR: ${safeError(error)}`;
+            } finally {
+              state.clearingSummaryCache = false;
+            }
+          };
+
           const setMailViewMode = async (mode) => {
             if (state.mailViewMode === mode) {
               if (mode === "html") {
                 await nextTick();
                 syncFrameHeight();
               }
-              if (mode === "summary") ensureSummary();
+              if (mode === "summary" && state.currentMail) {
+                const confirmRefresh = window.confirm("重新生成 AI 摘要？");
+                if (confirmRefresh) {
+                  await refreshSummary();
+                }
+              }
               return;
             }
             state.mailViewMode = mode;
@@ -956,6 +1144,29 @@
             state.currentMail = null;
             state.mailViewMode = "html";
             state.func = "mails";
+            state.tipMessage = "";
+          };
+
+          const deleteCurrentMail = async () => {
+            if (!state.currentMail || state.deletingMail) return;
+            const confirmDelete = window.confirm("确定要删除这封邮件吗？");
+            if (!confirmDelete) return;
+            state.deletingMail = true;
+            state.tipMessage = "";
+            try {
+              await client.deleteMail(state.currentMail.id);
+              const index = state.mailList.findIndex((mail) => mail.id === state.currentMail?.id);
+              if (index !== -1) {
+                state.mailList.splice(index, 1);
+              }
+              backToList();
+              await loadMails(true);
+              state.tipMessage = "邮件已删除";
+            } catch (error) {
+              state.tipMessage = `ERROR: ${safeError(error)}`;
+            } finally {
+              state.deletingMail = false;
+            }
           };
 
           const addAddress = async () => {
@@ -1030,6 +1241,7 @@
           watch(
             () => state.func,
             (value) => {
+              state.menuOpen = false;
               handleScroll();
               if (value === "list" && !state.lists.block.length && !state.lists.white.length) {
                 loadAddress();
@@ -1062,17 +1274,22 @@
 
           return {
             ...toRefs(state),
+            menuItems,
             addresses,
             inputPlaceholder,
             summaryLabel,
             textMailHtml,
             formatFullDateTime,
             syncFrameHeight,
+            toggleMenu,
+            switchPage,
             loadMoreMails,
             refreshMails,
+            clearSummaryCache,
             setMailViewMode,
             viewMail,
             backToList,
+            deleteCurrentMail,
             addAddress,
             removeAddress,
             testAddress,

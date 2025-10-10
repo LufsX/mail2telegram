@@ -160,6 +160,27 @@ function createRouter(env: Environment): RouterType {
     return await getMailSummary(mail, env);
   });
 
+  router.post("/api/summary/clear", auth, async (): Promise<any> => {
+    const deleted = await dao.clearMailSummaries();
+    return { success: true, deleted };
+  });
+
+  router.delete("/api/mails/:id", auth, async (req: IRequest): Promise<any> => {
+    const id = req.params.id;
+    await dao.deleteMail(id);
+    return { success: true };
+  });
+
+  router.post("/api/mails/:id/summary/refresh", auth, async (req: IRequest): Promise<any> => {
+    const id = req.params.id;
+    const mail = await dao.loadMailCache(id);
+    if (!mail) {
+      throw new HTTPError(404, "Email not found");
+    }
+    await dao.deleteMailSummary(id);
+    return await getMailSummary(mail, env);
+  });
+
   /// Webhook
 
   router.post("/telegram/:token/webhook", async (req: IRequest): Promise<any> => {
