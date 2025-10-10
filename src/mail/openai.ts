@@ -13,13 +13,14 @@ export async function sendOpenAIRequest(key: string, endpoint: string, model: st
       messages: [
         {
           role: "system",
-          content: "你是一位专业的电子邮件摘要助手，负责完美的将各个类别的电子邮件进行摘要总结。",
+          content: "你是一位专业的电子邮件摘要助手，负责完美的将各个类别的电子邮件进行摘要总结，你会完美的遵循格式规范，比如中英文之间空格，链接与文本之间空格。",
         },
         {
           role: "user",
           content: prompt,
         },
       ],
+      stream: false,
     }),
   });
   if (!resp.ok) {
