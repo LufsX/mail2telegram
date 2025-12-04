@@ -39,14 +39,14 @@
       <!-- ==================== 邮件列表面板 ==================== -->
       <section v-if="func === 'mails'" class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-none shadow-sm overflow-hidden">
         <!-- 头部 -->
-        <header class="flex justify-between items-center px-4 py-3 border-b border-gray-100 dark:border-gray-800 relative">
+        <header class="flex justify-between items-center px-2 sm:px-4 py-2 md:py-3 border-b border-gray-100 dark:border-gray-800 relative">
           <button
-            class="group flex items-center gap-2 text-lg font-semibold text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 px-3 py-1.5 rounded-none transition-all focus:ring-2 focus:ring-sky-500/50 outline-none"
+            class="group flex items-center gap-1 text-lg font-semibold text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 pl-3 pr-2 py-1.5 rounded-none transition-all focus:ring-2 focus:ring-sky-500/50 outline-none"
             :class="{ 'bg-gray-50 dark:bg-gray-800': menuOpen }"
             @click="toggleMenu"
           >
             邮件列表
-            <svg class="w-4 h-4 text-gray-400 group-hover:text-gray-600 dark:text-gray-500 dark:group-hover:text-gray-300 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg class="w-4 text-gray-400 group-hover:text-gray-600 dark:text-gray-500 dark:group-hover:text-gray-300 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
             </svg>
           </button>
@@ -70,11 +70,11 @@
 
           <!-- 菜单下拉 -->
           <transition name="panel-menu">
-            <div v-if="menuOpen" class="absolute top-full left-4 mt-2 w-40 py-1 rounded-none border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl z-50 flex flex-col">
+            <div v-if="menuOpen" class="absolute top-full left-4 mt-1 rounded-none border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl z-50 flex flex-col">
               <button
                 v-for="item in menuItems"
                 :key="item.value"
-                class="w-full text-left px-4 py-2 text-sm transition-colors"
+                class="w-full text-left px-5 py-2 text-base transition-colors"
                 :class="func === item.value ? 'bg-sky-50 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'"
                 @click="switchPage(item.value)"
               >
@@ -85,7 +85,7 @@
         </header>
 
         <!-- 内容区 -->
-        <div class="p-4 sm:p-5">
+        <div class="p-2 sm:p-4">
           <!-- 提示信息 -->
           <div
             v-if="tipMessage"
@@ -111,7 +111,7 @@
                     <td class="py-3 px-4 text-gray-700 dark:text-gray-300 font-medium break-words">{{ mail.subject || '(无标题)' }}</td>
                     <td class="py-3 px-4 text-right">
                       <button
-                        class="px-2 py-2 rounded-none border border-sky-600 bg-sky-600 text-white text-xs hover:bg-sky-700 hover:border-sky-700 transition-colors shadow-sm"
+                        class="px-2.5 py-1.5 rounded-none border border-sky-600 bg-sky-600 text-white text-xs hover:bg-sky-700 hover:border-sky-700 transition-colors shadow-sm"
                         @click="viewMail(mail.id)"
                       >
                         查看
@@ -134,7 +134,7 @@
 
       <!-- ==================== 邮件详情面板 ==================== -->
       <section v-if="func === 'mail-detail' && currentMail" class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-none shadow-sm overflow-hidden">
-        <header class="flex justify-between items-center px-4 py-3 border-b border-gray-100 dark:border-gray-800 relative">
+        <header class="flex justify-between items-center px-2 sm:px-4 py-2 md:py-3 border-b border-gray-100 dark:border-gray-800 relative">
           <button
             class="flex items-center gap-2 text-lg font-semibold text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 px-3 py-1.5 rounded-none transition-colors"
             @click="toggleMenu"
@@ -157,11 +157,11 @@
             </button>
           </div>
           <transition name="panel-menu">
-            <div v-if="menuOpen" class="absolute top-full left-4 mt-2 w-40 py-1 rounded-none border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl z-50 flex flex-col">
+            <div v-if="menuOpen" class="absolute top-full left-4 mt-1 rounded-none border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl z-50 flex flex-col">
               <button
                 v-for="item in menuItems"
                 :key="item.value"
-                class="w-full text-left px-4 py-2 text-sm transition-colors"
+                class="w-full text-left px-5 py-2 text-base transition-colors"
                 :class="func === item.value ? 'bg-sky-50 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'"
                 @click="switchPage(item.value)"
               >
@@ -171,7 +171,7 @@
           </transition>
         </header>
 
-        <div class="p-4 sm:p-5">
+        <div class="p-2 sm:p-4">
           <div
             v-if="tipMessage"
             :class="['mb-4 px-4 py-3 rounded-none text-sm', tipMessage.startsWith('ERROR') ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300' : 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400']"
@@ -259,17 +259,21 @@
 
       <!-- ==================== 地址管理面板 ==================== -->
       <section v-if="func === 'list'" class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-none shadow-sm overflow-hidden">
-        <header class="flex justify-between items-center px-4 py-3 border-b border-gray-100 dark:border-gray-800 relative">
+        <header class="flex justify-between items-center px-2 sm:px-4 py-2 md:py-3 border-b border-gray-100 dark:border-gray-800 relative">
           <button
-            class="flex items-center gap-2 text-lg font-semibold text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 px-3 py-1.5 rounded-none transition-colors"
+            class="group flex items-center gap-1 text-lg font-semibold text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 pl-3 pr-2 py-1.5 rounded-none transition-all focus:ring-2 focus:ring-sky-500/50 outline-none"
+            :class="{ 'bg-gray-50 dark:bg-gray-800': menuOpen }"
             @click="toggleMenu"
           >
             地址管理
+            <svg class="w-4 text-gray-400 group-hover:text-gray-600 dark:text-gray-500 dark:group-hover:text-gray-300 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
           </button>
           <div class="flex items-center">
             <select
               v-model="mode"
-              class="px-3 py-1.5 rounded-none border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 text-sm focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-colors cursor-pointer"
+              class="px-2 py-1.5 rounded-none border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 text-sm focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-colors cursor-pointer"
             >
               <option value="block">黑名单</option>
               <option value="white">白名单</option>
@@ -277,11 +281,11 @@
             </select>
           </div>
           <transition name="panel-menu">
-            <div v-if="menuOpen" class="absolute top-full left-4 mt-2 w-40 py-1 rounded-none border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl z-50 flex flex-col">
+            <div v-if="menuOpen" class="absolute top-full left-4 mt-1 rounded-none border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl z-50 flex flex-col">
               <button
                 v-for="item in menuItems"
                 :key="item.value"
-                class="w-full text-left px-4 py-2 text-sm transition-colors"
+                class="w-full text-left px-5 py-2 text-base transition-colors"
                 :class="func === item.value ? 'bg-sky-50 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'"
                 @click="switchPage(item.value)"
               >
@@ -291,7 +295,7 @@
           </transition>
         </header>
 
-        <div class="p-4 sm:p-5">
+        <div class="p-2 sm:p-4">
           <div
             v-if="tipMessage"
             :class="['mb-4 px-4 py-3 rounded-none text-sm', tipMessage.startsWith('ERROR') ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300' : 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400']"
@@ -367,19 +371,23 @@
 
       <!-- ==================== 发送邮件面板 ==================== -->
       <section v-if="func === 'sendmail'" class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-none shadow-sm overflow-hidden">
-        <header class="flex justify-between items-center px-4 py-3 border-b border-gray-100 dark:border-gray-800 relative">
+        <header class="flex justify-between items-center px-2 sm:px-4 py-2 md:py-3 border-b border-gray-100 dark:border-gray-800 relative">
           <button
-            class="flex items-center gap-2 text-lg font-semibold text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 px-3 py-1.5 rounded-none transition-colors"
+            class="group flex items-center gap-1 text-lg font-semibold text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 pl-3 pr-2 py-1.5 rounded-none transition-all focus:ring-2 focus:ring-sky-500/50 outline-none"
+            :class="{ 'bg-gray-50 dark:bg-gray-800': menuOpen }"
             @click="toggleMenu"
           >
             发送邮件
+            <svg class="w-4 text-gray-400 group-hover:text-gray-600 dark:text-gray-500 dark:group-hover:text-gray-300 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
           </button>
           <transition name="panel-menu">
-            <div v-if="menuOpen" class="absolute top-full left-4 mt-2 w-40 py-1 rounded-none border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl z-50 flex flex-col">
+            <div v-if="menuOpen" class="absolute top-full left-4 mt-1 rounded-none border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl z-50 flex flex-col">
               <button
                 v-for="item in menuItems"
                 :key="item.value"
-                class="w-full text-left px-4 py-2 text-sm transition-colors"
+                class="w-full text-left px-5 py-2 text-base transition-colors"
                 :class="func === item.value ? 'bg-sky-50 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'"
                 @click="switchPage(item.value)"
               >
@@ -389,7 +397,7 @@
           </transition>
         </header>
 
-        <div class="p-4 sm:p-5 space-y-4">
+        <div class="p-2 sm:p-4 space-y-4">
           <div
             v-if="tipMessage"
             :class="['px-4 py-3 rounded-none text-sm', tipMessage.startsWith('ERROR') ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300' : 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400']"
