@@ -17,7 +17,6 @@ export interface EmailDetailParams {
 }
 
 function escapeMarkdownV2(text: string): string {
-  // eslint-disable-next-line no-useless-escape
   const specials = new Set(["_", "*", "[", "]", "(", ")", "~", "`", ">", "#", "+", "-", "=", "|", "{", "}", ".", "!"]);
   let result = "";
   for (const char of text) {
@@ -134,16 +133,7 @@ function extractMailContent(mail: EmailCache): string {
 }
 
 export async function getMailSummary(mail: EmailCache, env: Environment): Promise<MailSummaryResult> {
-  const {
-    OPENAI_API_KEY: key,
-    OPENAI_COMPLETIONS_API: endpointRaw,
-    OPENAI_CHAT_MODEL: modelRaw,
-    SUMMARY_TARGET_LANG: targetLangRaw,
-    MAIL_TTL: mailTtlRaw,
-    WORKERS_AI_MODEL,
-    AI,
-    DB,
-  } = env;
+  const { OPENAI_API_KEY: key, OPENAI_COMPLETIONS_API: endpointRaw, OPENAI_CHAT_MODEL: modelRaw, SUMMARY_TARGET_LANG: targetLangRaw, MAIL_TTL: mailTtlRaw, WORKERS_AI_MODEL, AI, DB } = env;
   const endpoint = endpointRaw || "https://api.openai.com/v1/chat/completions";
   const model = modelRaw || "gpt-4o-mini";
   const targetLang = (targetLangRaw || "english").trim();

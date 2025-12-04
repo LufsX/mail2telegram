@@ -38,7 +38,7 @@ export class Dao {
 
   async removeAddress(address: string, type: AddressListStoreKey): Promise<void> {
     const list = await this.loadArrayFromDB(type);
-    const result = list.filter((item) => item !== address);
+    const result = list.filter(item => item !== address);
     await this.db.put(type, JSON.stringify(result));
   }
 

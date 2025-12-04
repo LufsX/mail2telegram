@@ -30,7 +30,7 @@ if (typeof Buffer === "undefined") {
       switch (encoding) {
         case "hex":
           return Array.from(new Uint8Array(this))
-            .map((b) => b.toString(16).padStart(2, "0"))
+            .map(b => b.toString(16).padStart(2, "0"))
             .join("");
         case "base64":
           return btoa(String.fromCharCode.apply(null, new Uint8Array(this) as unknown as number[]));
