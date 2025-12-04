@@ -1,855 +1,517 @@
-<!DOCTYPE html>
-<html lang="zh-cn" data-theme="light">
+<!doctype html>
+<html lang="zh-cn" class="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>mail2telegram</title>
+    <!-- Telegram WebApp SDK -->
     <script src="https://cors.isteed.cc/https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Vue 3 -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <!-- Tailwind CSS (使用标准 CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      // 仅配置暗黑模式策略，不添加自定义颜色
+      tailwind.config = {
+        darkMode: "class",
+      };
+    </script>
     <style>
-      :root {
-        color-scheme: light;
-        --c-bg: #f4f5f7;
-        --c-surface: #ffffff;
-        --c-surface-2: #f0f4f8;
-        --c-text: #1f2933;
-        --c-text-soft: #334155;
-        --c-text-muted: #7b8794;
-        --c-border: #d9e2ec;
-        --c-border-soft: #e4ebf5;
-        --c-primary: #0088cc;
-        --c-primary-hover: #0b6fa4;
-        --c-danger: #e12d39;
-        --c-danger-hover: #c81e32;
-        --c-tip-bg: #fff8e1;
-        --c-tip-border: #f6c453;
-        --c-tip-text: #8d5d0b;
-        --c-html-bg: #fff;
+      /* 完全隐藏滚动条 */
+      body::-webkit-scrollbar {
+        display: none;
       }
 
-      :root[data-theme="dark"] {
-        color-scheme: dark;
-        --c-bg: #000;
-        --c-surface: #000;
-        --c-surface-2: #0e141c;
-        --c-text: #e2e8f0;
-        --c-text-soft: #cbd5f5;
-        --c-text-muted: #94a3b8;
-        --c-border: #1f2937;
-        --c-border-soft: #273449;
-        --c-primary: #1c77a4;
-        --c-primary-hover: #316983;
-        --c-danger: #b15151;
-        --c-danger-hover: #b91f1f;
-        --c-tip-bg: rgba(255, 214, 102, 0.08);
-        --c-tip-border: rgba(255, 214, 102, 0.4);
-        --c-tip-text: #facc15;
-        --c-html-bg: #fff;
-      }
-
-      * {
-        box-sizing: border-box;
-      }
-
-      body {
-        margin: 0;
-        padding: 16px;
-        background: var(--c-bg);
-        color: var(--c-text);
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-        line-height: 1.6;
-        transition: background 0.2s ease, color 0.2s ease;
-      }
-
-      .app {
-        max-width: 840px;
-        margin: 0 auto;
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-      }
-
-      .panel__header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 12px;
-        padding: 20px 24px 12px;
-        border-bottom: 1px solid var(--c-border-soft);
-        background: var(--c-surface);
-        position: relative;
-      }
-
-      .panel__title {
-        margin: 0;
-        padding: 2px 2px;
-        border-radius: 1px;
-        background: transparent;
-        border: 1px solid transparent;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 1.15rem;
-        font-weight: 600;
-        color: var(--c-text);
-        cursor: pointer;
-        transition: background 0.2s ease, border-color 0.2s ease;
-      }
-
-      .panel__title:hover {
-        background: var(--c-surface-2);
-        border-color: var(--c-border);
-      }
-
-      .panel__title:focus {
-        outline: none;
-        border-color: var(--c-primary);
-      }
-
-      .panel__title small {
-        font-size: 0.8125rem;
-        color: var(--c-text-muted);
-        font-weight: 500;
-      }
-
-      .panel__menu {
-        position: absolute;
-        top: calc(100% + 8px);
-        left: 24px;
-        width: 10em;
-        padding: 10px;
-        border-radius: 1px;
-        border: 1px solid var(--c-border-soft);
-        background: var(--c-surface-2);
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.14);
-        z-index: 20;
-      }
-
-      .panel__menu button {
-        padding: 6px 12px;
-        border-radius: 1px;
-        background: var(--c-surface);
-        border: 1px solid var(--c-border);
-        color: var(--c-text);
-      }
-
-      .panel__menu button.active {
-        background: var(--c-primary);
-        border-color: var(--c-primary);
-        color: #fff;
-      }
-
+      /* Vue 列表动画 */
       .panel-menu-enter-active,
       .panel-menu-leave-active {
-        transition: all 0.18s ease;
+        transition: all 0.15s ease-out;
       }
-
       .panel-menu-enter-from,
       .panel-menu-leave-to {
         opacity: 0;
-        transform: translateY(-8px);
-      }
-
-      .panel {
-        border: 1px solid var(--c-border);
-        border-radius: 1px;
-        background: var(--c-surface);
-        overflow: hidden;
-      }
-
-      .panel__actions {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .panel__body {
-        padding: 24px;
-      }
-
-      button {
-        padding: 6px 12px;
-        border-radius: 1px;
-        border: 1px solid var(--c-border);
-        background: transparent;
-        color: var(--c-text);
-        font-size: 0.875rem;
-        font-family: inherit;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        white-space: nowrap;
-      }
-
-      button:hover {
-        background: var(--c-surface-2);
-      }
-
-      button:active {
-        transform: translateY(1px);
-      }
-
-      button:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-      }
-
-      button.primary {
-        background: var(--c-primary);
-        border-color: var(--c-primary);
-        color: #ffffff;
-      }
-
-      button.primary:hover {
-        background: var(--c-primary-hover);
-        border-color: var(--c-primary-hover);
-      }
-
-      button.danger {
-        color: var(--c-danger);
-        border-color: var(--c-danger);
-      }
-
-      button.danger:hover {
-        background: var(--c-danger-hover);
-        border-color: var(--c-danger-hover);
-        color: #ffffff;
-      }
-
-      button.full {
-        width: 100%;
-        margin-top: 16px;
-      }
-
-      input,
-      textarea,
-      select {
-        width: 100%;
-        height: 100%;
-        padding: 6px 12px;
-        border-radius: 1px;
-        border: 1px solid var(--c-border);
-        background: var(--c-surface);
-        font-size: 0.875rem;
-        font-family: ui-monospace, "SF Mono", Menlo, monospace;
-        color: var(--c-text-soft);
-        transition: border-color 0.2s ease, background 0.2s ease;
-      }
-
-      input:focus,
-      textarea:focus,
-      select:focus {
-        outline: none;
-        border-color: var(--c-primary);
-      }
-
-      textarea {
-        flex: 1;
-        min-height: 120px;
-        resize: vertical;
-      }
-
-      select {
-        width: auto;
-      }
-
-      .tip {
-        margin: 0 0 16px;
-        padding: 12px 16px;
-        border-radius: 1px;
-        border: 1px solid var(--c-tip-border);
-        background: var(--c-tip-bg);
-        color: var(--c-tip-text);
-        font-size: 0.875rem;
-      }
-
-      .tip.error {
-        background: rgba(225, 45, 57, 0.12);
-        border-color: rgba(225, 45, 57, 0.4);
-        color: var(--c-danger);
-      }
-
-      .empty {
-        text-align: center;
-        color: var(--c-text-muted);
-        padding: 32px 0;
-        font-size: 0.9rem;
-      }
-
-      .table {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 0;
-      }
-
-      .table th,
-      .table td {
-        padding: 14px 16px;
-        text-align: left;
-        border-bottom: 1px solid var(--c-border-soft);
-        font-size: 0.875rem;
-      }
-
-      .table thead th {
-        font-size: 0.8rem;
-        font-weight: 600;
-        color: var(--c-text-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-      }
-
-      .table tbody tr:hover {
-        background: var(--c-surface-2);
-      }
-
-      .table__action {
-        width: 90px;
-        text-align: right;
-        white-space: nowrap;
-      }
-
-      .subject {
-        color: var(--c-text-soft);
-        font-weight: 500;
-        word-break: break-word;
-      }
-
-      .mail-meta {
-        border: 1px solid var(--c-border);
-        border-radius: 1px;
-        background: var(--c-surface);
-        margin-bottom: 24px;
-        padding: 8px 16px;
-      }
-
-      .mail-meta__row {
-        display: grid;
-        grid-template-columns: 80px 1fr;
-        gap: 8px 16px;
-        align-items: baseline;
-        padding: 10px 0;
-        border-bottom: 1px solid var(--c-border-soft);
-      }
-
-      .mail-meta__row:last-child {
-        border-bottom: none;
-      }
-
-      .mail-meta__label {
-        font-size: 0.8125rem;
-        color: var(--c-text-muted);
-        font-weight: 600;
-      }
-
-      .mail-meta__value {
-        font-family: ui-monospace, "SF Mono", Menlo, monospace;
-        font-size: 0.875rem;
-        color: var(--c-text-soft);
-        word-break: break-all;
-      }
-
-      .mail-subject {
-        margin: 16px 0 24px;
-        font-size: 1.5rem;
-        font-weight: 600;
-        color: var(--c-text);
-        line-height: 1.4;
-      }
-
-      .mail-tabs {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin-bottom: 16px;
-      }
-
-      .mail-tabs button {
-        background: var(--c-surface-2);
-        border-color: transparent;
-        color: var(--c-text-soft);
-      }
-
-      .mail-tabs button.active {
-        background: var(--c-primary);
-        border-color: var(--c-primary);
-        color: #ffffff;
-      }
-
-      .mail-view {
-        border: 1px solid var(--c-border);
-        border-radius: 1px;
-        padding: 16px;
-        background: var(--c-surface-2);
-        max-height: 600px;
-        overflow: auto;
-      }
-
-      .mail-view--html {
-        border: 1px solid var(--c-border);
-        border-radius: 1px;
-        padding: 0;
-        overflow: visible;
-        background: var(--c-surface);
-        width: 100%;
-        max-height: none;
-      }
-
-      .mail-view pre,
-      .mail-view .mail-text {
-        margin: 0;
-        font-family: ui-monospace, "SF Mono", Menlo, monospace;
-        font-size: 0.875rem;
-        line-height: 1.7;
-        color: var(--c-text-soft);
-        white-space: pre-wrap;
-        word-break: break-word;
-      }
-
-      .mail-view--html iframe {
-        width: 100%;
-        border: none;
-        display: block;
-        background: var(--c-html-bg);
-        margin: 0;
-      }
-
-      .mail-view a {
-        color: var(--c-primary);
-        text-decoration: underline;
-        word-break: break-all;
-      }
-
-      .mail-view a:hover {
-        color: var(--c-primary-hover);
-      }
-
-      .mail-view .empty {
-        padding: 24px 0;
-      }
-
-      .summary-meta {
-        margin-top: 12px;
-        font-size: 0.75rem;
-        color: var(--c-text-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-      }
-
-      .input-row {
-        display: flex;
-        gap: 12px;
-        align-items: center;
-        margin-bottom: 16px;
-      }
-
-      .input-row input {
-        flex: 1;
-      }
-
-      .form-label {
-        width: 80px;
-        color: var(--c-text-muted);
-        font-size: 0.8125rem;
-        display: inline-flex;
-        align-items: center;
-      }
-
-      .input-row--textarea {
-        align-items: flex-start;
-      }
-
-      .input-row--textarea .form-label {
-        padding-top: 8px;
-      }
-
-      .address-list {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-        border: 1px solid var(--c-border);
-        border-radius: 1px;
-        overflow: hidden;
-      }
-
-      .address-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 12px;
-        padding: 12px 16px;
-        border-bottom: 1px solid var(--c-border-soft);
-        background: var(--c-surface);
-        font-family: ui-monospace, "SF Mono", Menlo, monospace;
-        font-size: 0.875rem;
-        color: var(--c-text-soft);
-      }
-
-      .address-item:last-child {
-        border-bottom: none;
-      }
-
-      .badge {
-        padding: 4px 8px;
-        border-radius: 1px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-      }
-
-      .badge.block {
-        background: var(--c-danger);
-        color: #ffffff;
-      }
-
-      .badge.white {
-        background: #22c55e;
-        color: #052e16;
-      }
-
-      .scroll-top {
-        position: fixed;
-        right: max(16px, calc((100vw - 840px) / 2 + 24px));
-        bottom: 80px;
-        box-shadow: 0 12px 32px rgba(15, 23, 42, 0.2);
-        z-index: 999;
-        opacity: 0;
-        visibility: hidden;
-        transform: translateY(10px);
-        transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s, box-shadow 0.2s ease, background 0.2s ease;
-      }
-
-      .scroll-top.show {
-        opacity: 0.7;
-        visibility: visible;
-        transform: translateY(0);
-      }
-
-      .scroll-top:hover {
-        opacity: 1;
-        box-shadow: 0 16px 36px rgba(15, 23, 42, 0.24);
-      }
-
-      @media (max-width: 720px) {
-        body {
-          padding: 12px;
-        }
-
-        .panel__header {
-          padding: 16px 20px 10px;
-        }
-
-        .panel__body {
-          padding: 20px;
-        }
-
-        button {
-          padding: 6px 12px;
-        }
-
-        .table__action {
-          width: 70px;
-        }
-
-        .mail-meta__row {
-          grid-template-columns: 70px 1fr;
-        }
-
-        .mail-subject {
-          font-size: 1.3rem;
-        }
-      }
-
-      @media (max-width: 480px) {
-        body {
-          padding: 0;
-        }
-
-        .app {
-          max-width: none;
-        }
-
-        .panel {
-          border-radius: 0;
-        }
-
-        .input-row {
-          flex-direction: column;
-          align-items: stretch;
-        }
-
-        .input-row button {
-          width: 100%;
-        }
-
-        .mail-tabs {
-          width: 100%;
-        }
-
-        .mail-tabs button {
-          flex: 1 1 30%;
-        }
-
-        .table {
-          font-size: 0.8125rem;
-        }
-
-        .table th,
-        .table td {
-          padding: 12px 8px;
-        }
+        transform: translateY(-8px) scale(0.95);
       }
     </style>
   </head>
-  <body>
-    <div id="app" class="app">
-      <section v-if="func === 'mails'" class="panel">
-        <header class="panel__header">
-          <button class="panel__title" :class="{ active: menuOpen }" type="button" @click="toggleMenu">邮件列表</button>
-          <div class="panel__actions">
-            <button class="danger" @click="clearSummaryCache" :disabled="clearingSummaryCache">清除摘要缓存</button>
-            <button @click="refreshMails" :disabled="loading">刷新</button>
+  <body class="bg-gray-100 text-gray-800 dark:bg-black dark:text-gray-200 font-sans antialiased p-2 sm:p-3 min-h-screen">
+    <div id="app" class="max-w-[840px] mx-auto flex flex-col gap-4">
+      <!-- ==================== 邮件列表面板 ==================== -->
+      <section v-if="func === 'mails'" class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-none shadow-sm overflow-hidden">
+        <!-- 头部 -->
+        <header class="flex justify-between items-center px-4 py-3 border-b border-gray-100 dark:border-gray-800 relative">
+          <button
+            class="group flex items-center gap-2 text-lg font-semibold text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 px-3 py-1.5 rounded-none transition-all focus:ring-2 focus:ring-sky-500/50 outline-none"
+            :class="{ 'bg-gray-50 dark:bg-gray-800': menuOpen }"
+            @click="toggleMenu"
+          >
+            邮件列表
+            <svg class="w-4 h-4 text-gray-400 group-hover:text-gray-600 dark:text-gray-500 dark:group-hover:text-gray-300 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+
+          <div class="flex items-center gap-2">
+            <button
+              class="px-3 py-1.5 rounded-none border border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-400 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50"
+              @click="clearSummaryCache"
+              :disabled="clearingSummaryCache"
+            >
+              清除缓存
+            </button>
+            <button
+              class="px-3 py-1.5 rounded-none border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors disabled:opacity-50"
+              @click="refreshMails"
+              :disabled="loading"
+            >
+              刷新
+            </button>
           </div>
+
+          <!-- 菜单下拉 -->
           <transition name="panel-menu">
-            <div v-if="menuOpen" class="panel__menu">
-              <button v-for="item in menuItems" :key="item.value" :class="{ active: func === item.value }" @click="switchPage(item.value)">{{ item.label }}</button>
+            <div v-if="menuOpen" class="absolute top-full left-4 mt-2 w-40 py-1 rounded-none border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl z-50 flex flex-col">
+              <button
+                v-for="item in menuItems"
+                :key="item.value"
+                class="w-full text-left px-4 py-2 text-sm transition-colors"
+                :class="func === item.value ? 'bg-sky-50 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'"
+                @click="switchPage(item.value)"
+              >
+                {{ item.label }}
+              </button>
             </div>
           </transition>
         </header>
-        <div class="panel__body">
-          <p v-if="tipMessage" :class="['tip', { error: tipMessage.startsWith('ERROR') }]">{{ tipMessage }}</p>
-          <div v-if="loading" class="empty">加载中...</div>
+
+        <!-- 内容区 -->
+        <div class="p-4 sm:p-5">
+          <!-- 提示信息 -->
+          <div
+            v-if="tipMessage"
+            :class="['mb-4 px-4 py-3 rounded-none text-sm flex items-center gap-2', tipMessage.startsWith('ERROR') ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border border-red-100 dark:border-red-800' : 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 border border-amber-100 dark:border-amber-800']"
+          >
+            {{ tipMessage }}
+          </div>
+
+          <div v-if="loading && !mailList.length" class="py-12 text-center text-gray-400 dark:text-gray-500 text-sm">加载中...</div>
+
           <template v-else>
-            <div v-if="!mailList.length" class="empty">暂无邮件</div>
-            <table v-else class="table">
-              <thead>
-                <tr>
-                  <th>标题</th>
-                  <th class="table__action">操作</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="mail in mailList" :key="mail.id">
-                  <td class="subject">{{ mail.subject || '(无标题)' }}</td>
-                  <td class="table__action">
-                    <button class="primary" @click="viewMail(mail.id)">查看</button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-            <button v-if="hasMore" class="primary full" @click="loadMoreMails">加载更多</button>
+            <div v-if="!mailList.length" class="py-12 text-center text-gray-400 dark:text-gray-500 text-sm">暂无邮件</div>
+            <div v-else class="overflow-hidden rounded-none border border-gray-200 dark:border-gray-800">
+              <table class="w-full text-sm text-left">
+                <thead class="bg-gray-50 dark:bg-gray-800/50">
+                  <tr>
+                    <th class="py-3 px-4 font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-xs">标题</th>
+                    <th class="py-3 px-4 font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-xs w-[80px] text-right">操作</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                  <tr v-for="mail in mailList" :key="mail.id" class="group hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                    <td class="py-3 px-4 text-gray-700 dark:text-gray-300 font-medium break-words">{{ mail.subject || '(无标题)' }}</td>
+                    <td class="py-3 px-4 text-right">
+                      <button
+                        class="px-2 py-2 rounded-none border border-sky-600 bg-sky-600 text-white text-xs hover:bg-sky-700 hover:border-sky-700 transition-colors shadow-sm"
+                        @click="viewMail(mail.id)"
+                      >
+                        查看
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <button
+              v-if="hasMore"
+              class="w-full mt-4 py-2.5 rounded-none border border-gray-200 dark:border-gray-700 text-sky-600 dark:text-sky-400 text-sm font-medium hover:bg-sky-50 dark:hover:bg-sky-900/10 transition-colors"
+              @click="loadMoreMails"
+            >
+              加载更多
+            </button>
           </template>
         </div>
       </section>
 
-      <section v-if="func === 'mail-detail' && currentMail" class="panel">
-        <header class="panel__header">
-          <button class="panel__title" :class="{ active: menuOpen }" type="button" @click="toggleMenu">邮件详情</button>
-          <div class="panel__actions">
-            <button class="danger" @click="deleteCurrentMail" :disabled="deletingMail">删除邮件</button>
-            <button @click="backToList">← 返回列表</button>
+      <!-- ==================== 邮件详情面板 ==================== -->
+      <section v-if="func === 'mail-detail' && currentMail" class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-none shadow-sm overflow-hidden">
+        <header class="flex justify-between items-center px-4 py-3 border-b border-gray-100 dark:border-gray-800 relative">
+          <button
+            class="flex items-center gap-2 text-lg font-semibold text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 px-3 py-1.5 rounded-none transition-colors"
+            @click="toggleMenu"
+          >
+            邮件详情
+          </button>
+          <div class="flex items-center gap-2">
+            <button
+              class="px-3 py-1.5 rounded-none border border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-400 text-sm font-medium hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50"
+              @click="deleteCurrentMail"
+              :disabled="deletingMail"
+            >
+              删除
+            </button>
+            <button
+              class="px-3 py-1.5 rounded-none border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              @click="backToList"
+            >
+              返回
+            </button>
           </div>
           <transition name="panel-menu">
-            <div v-if="menuOpen" class="panel__menu">
-              <button v-for="item in menuItems" :key="item.value" :class="{ active: func === item.value }" @click="switchPage(item.value)">{{ item.label }}</button>
+            <div v-if="menuOpen" class="absolute top-full left-4 mt-2 w-40 py-1 rounded-none border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl z-50 flex flex-col">
+              <button
+                v-for="item in menuItems"
+                :key="item.value"
+                class="w-full text-left px-4 py-2 text-sm transition-colors"
+                :class="func === item.value ? 'bg-sky-50 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'"
+                @click="switchPage(item.value)"
+              >
+                {{ item.label }}
+              </button>
             </div>
           </transition>
         </header>
-        <div class="panel__body">
-          <p v-if="tipMessage" :class="['tip', { error: tipMessage.startsWith('ERROR') }]">{{ tipMessage }}</p>
-          <div class="mail-meta">
-            <div class="mail-meta__row">
-              <span class="mail-meta__label">发件邮箱</span>
-              <span class="mail-meta__value">{{ currentMail.from }}</span>
+
+        <div class="p-4 sm:p-5">
+          <div
+            v-if="tipMessage"
+            :class="['mb-4 px-4 py-3 rounded-none text-sm', tipMessage.startsWith('ERROR') ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300' : 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400']"
+          >
+            {{ tipMessage }}
+          </div>
+
+          <!-- 邮件元数据 -->
+          <div class="bg-gray-50 dark:bg-gray-800/40 rounded-none border border-gray-100 dark:border-gray-800 mb-6 p-4 space-y-2">
+            <div class="grid grid-cols-[70px_1fr] gap-3 items-baseline border-b border-gray-200 dark:border-gray-700 pb-2 last:border-0 last:pb-0">
+              <span class="text-xs font-semibold text-gray-500 uppercase">发件人</span>
+              <span class="font-mono text-sm text-gray-700 dark:text-gray-300 break-all select-all">{{ currentMail.from }}</span>
             </div>
-            <div class="mail-meta__row">
-              <span class="mail-meta__label">收件邮箱</span>
-              <span class="mail-meta__value">{{ currentMail.to }}</span>
+            <div class="grid grid-cols-[70px_1fr] gap-3 items-baseline border-b border-gray-200 dark:border-gray-700 pb-2 last:border-0 last:pb-0">
+              <span class="text-xs font-semibold text-gray-500 uppercase">收件人</span>
+              <span class="font-mono text-sm text-gray-700 dark:text-gray-300 break-all select-all">{{ currentMail.to }}</span>
             </div>
-            <div v-if="currentMail.receivedAt" class="mail-meta__row">
-              <span class="mail-meta__label">收件时间</span>
-              <span class="mail-meta__value">{{ formatFullDateTime(currentMail.receivedAt) }}</span>
+            <div v-if="currentMail.receivedAt" class="grid grid-cols-[70px_1fr] gap-3 items-baseline pb-1">
+              <span class="text-xs font-semibold text-gray-500 uppercase">时间</span>
+              <span class="font-mono text-sm text-gray-700 dark:text-gray-300">{{ formatFullDateTime(currentMail.receivedAt) }}</span>
             </div>
           </div>
 
-          <h2 class="mail-subject">{{ currentMail.subject || '(无标题)' }}</h2>
+          <h2 class="my-6 text-xl sm:text-2xl font-bold text-gray-900 dark:text-white leading-snug">{{ currentMail.subject || '(无标题)' }}</h2>
 
-          <div class="mail-tabs">
-            <button v-if="currentMail.html" :class="{ active: mailViewMode === 'html' }" @click="setMailViewMode('html')">HTML 正文</button>
-            <button v-if="currentMail.text" :class="{ active: mailViewMode === 'text' }" @click="setMailViewMode('text')">纯文本</button>
-            <button :class="{ active: mailViewMode === 'summary' }" @click="setMailViewMode('summary')">AI 摘要</button>
+          <!-- 视图切换 Tab -->
+          <div class="flex flex-wrap gap-2 mb-4">
+            <button
+              v-if="currentMail.html"
+              class="px-4 py-1.5 rounded-none border text-sm font-medium transition-all"
+              :class="mailViewMode === 'html' ? 'bg-sky-600 border-sky-600 text-white shadow-md' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'"
+              @click="setMailViewMode('html')"
+            >
+              HTML
+            </button>
+            <button
+              v-if="currentMail.text"
+              class="px-4 py-1.5 rounded-none border text-sm font-medium transition-all"
+              :class="mailViewMode === 'text' ? 'bg-sky-600 border-sky-600 text-white shadow-md' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'"
+              @click="setMailViewMode('text')"
+            >
+              纯文本
+            </button>
+            <button
+              class="px-4 py-1.5 rounded-none border text-sm font-medium transition-all flex items-center gap-1.5"
+              :class="mailViewMode === 'summary' ? 'bg-sky-600 border-sky-600 text-white shadow-md' : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700'"
+              @click="setMailViewMode('summary')"
+            >
+              AI 摘要
+            </button>
           </div>
 
-          <div v-if="mailViewMode === 'html' && currentMail.html" class="mail-view--html">
-            <iframe id="mail-content-frame" :srcdoc="'<style>body{margin:0;padding:0;}</style>' + currentMail.html" title="邮件正文预览" @load="syncFrameHeight"></iframe>
+          <!-- 内容展示区域 -->
+          <div v-if="mailViewMode === 'html' && currentMail.html" class="w-full bg-white rounded-none border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <iframe
+              id="mail-content-frame"
+              :srcdoc="'<style>body{margin:0;padding:20px;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;color:#333;word-wrap:break-word;}</style>' + currentMail.html"
+              class="w-full border-none block"
+              title="邮件正文预览"
+              @load="syncFrameHeight"
+            ></iframe>
           </div>
-          <div v-else-if="mailViewMode === 'text' && currentMail.text" class="mail-view">
-            <div class="mail-text" v-html="textMailHtml"></div>
+
+          <div v-else-if="mailViewMode === 'text' && currentMail.text" class="border border-gray-200 dark:border-gray-700 rounded-none p-4 bg-gray-50 dark:bg-gray-900 max-h-[600px] overflow-auto">
+            <div class="font-mono text-sm leading-7 text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-words" v-html="textMailHtml"></div>
           </div>
-          <div v-else-if="mailViewMode === 'summary'" class="mail-view">
-            <div v-if="summary.loading" class="empty">摘要生成中...</div>
-            <div v-else-if="summary.error" class="empty">{{ summary.error }}</div>
+
+          <div v-else-if="mailViewMode === 'summary'" class="border border-gray-200 dark:border-gray-700 rounded-none p-5 bg-amber-50/50 dark:bg-amber-900/10 min-h-[120px]">
+            <div v-if="summary.loading" class="flex flex-col items-center py-6 text-gray-500 animate-pulse">
+              <span>正在分析邮件内容...</span>
+            </div>
+            <div v-else-if="summary.error" class="text-center py-6 text-red-500 text-sm">{{ summary.error }}</div>
             <template v-else-if="summary.text">
-              <pre>{{ summary.text }}</pre>
-              <div v-if="summaryLabel" class="summary-meta">来源：{{ summaryLabel }}</div>
+              <pre class="font-sans text-sm sm:text-base leading-7 text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-words">{{ summary.text }}</pre>
+              <div v-if="summaryLabel" class="mt-4 pt-3 border-t border-amber-200/50 dark:border-amber-800/50 text-xs text-amber-600 dark:text-amber-500/70 font-medium uppercase tracking-wide">
+                来源：{{ summaryLabel }}
+              </div>
             </template>
-            <div v-else class="empty">点击“AI 摘要”生成内容</div>
+            <div v-else class="text-center py-8 text-gray-400 dark:text-gray-500 text-sm">点击上方“AI 摘要”按钮生成内容</div>
           </div>
-          <div v-else class="mail-view">
-            <div class="empty">(正文为空)</div>
-          </div>
+
+          <div v-else class="border border-gray-200 dark:border-gray-700 rounded-none p-8 bg-gray-50 dark:bg-gray-800/50 text-center text-gray-400 text-sm">(正文内容为空)</div>
         </div>
       </section>
 
-      <section v-if="func === 'list'" class="panel">
-        <header class="panel__header">
-          <button class="panel__title" :class="{ active: menuOpen }" type="button" @click="toggleMenu">地址列表管理</button>
-          <div class="panel__actions">
-            <select v-model="mode" aria-label="选择列表类型">
+      <!-- ==================== 地址管理面板 ==================== -->
+      <section v-if="func === 'list'" class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-none shadow-sm overflow-hidden">
+        <header class="flex justify-between items-center px-4 py-3 border-b border-gray-100 dark:border-gray-800 relative">
+          <button
+            class="flex items-center gap-2 text-lg font-semibold text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 px-3 py-1.5 rounded-none transition-colors"
+            @click="toggleMenu"
+          >
+            地址管理
+          </button>
+          <div class="flex items-center">
+            <select
+              v-model="mode"
+              class="px-3 py-1.5 rounded-none border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 text-sm focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-colors cursor-pointer"
+            >
               <option value="block">黑名单</option>
               <option value="white">白名单</option>
               <option value="test">测试地址</option>
             </select>
           </div>
           <transition name="panel-menu">
-            <div v-if="menuOpen" class="panel__menu">
-              <button v-for="item in menuItems" :key="item.value" :class="{ active: func === item.value }" @click="switchPage(item.value)">{{ item.label }}</button>
+            <div v-if="menuOpen" class="absolute top-full left-4 mt-2 w-40 py-1 rounded-none border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl z-50 flex flex-col">
+              <button
+                v-for="item in menuItems"
+                :key="item.value"
+                class="w-full text-left px-4 py-2 text-sm transition-colors"
+                :class="func === item.value ? 'bg-sky-50 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'"
+                @click="switchPage(item.value)"
+              >
+                {{ item.label }}
+              </button>
             </div>
           </transition>
         </header>
-        <div class="panel__body">
-          <p v-if="tipMessage" :class="['tip', { error: tipMessage.startsWith('ERROR') }]">{{ tipMessage }}</p>
+
+        <div class="p-4 sm:p-5">
+          <div
+            v-if="tipMessage"
+            :class="['mb-4 px-4 py-3 rounded-none text-sm', tipMessage.startsWith('ERROR') ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300' : 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400']"
+          >
+            {{ tipMessage }}
+          </div>
 
           <template v-if="mode !== 'test'">
-            <div class="input-row">
-              <input v-model="inputAddress" :placeholder="inputPlaceholder" @keyup.enter="addAddress" aria-label="地址输入" />
-              <button class="primary" @click="addAddress">添加</button>
+            <div class="flex flex-col sm:flex-row gap-3 mb-4">
+              <input
+                v-model="inputAddress"
+                :placeholder="inputPlaceholder"
+                @keyup.enter="addAddress"
+                class="flex-1 px-3 py-2.5 rounded-none border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 text-sm placeholder-gray-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all shadow-sm"
+              />
+              <button
+                class="px-5 py-2.5 rounded-none border border-sky-600 bg-sky-600 text-white text-sm font-medium hover:bg-sky-700 transition-colors shadow-sm whitespace-nowrap"
+                @click="addAddress"
+              >
+                添加规则
+              </button>
             </div>
-            <ul v-if="addresses.length" class="address-list">
-              <li v-for="(address, index) in addresses" :key="address + index" class="address-item">
-                <span>{{ address }}</span>
-                <button class="danger" @click="removeAddress(index)">删除</button>
-              </li>
-            </ul>
-            <div v-else class="empty">暂无地址</div>
+
+            <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-none overflow-hidden">
+              <ul v-if="addresses.length" class="divide-y divide-gray-100 dark:divide-gray-800">
+                <li v-for="(address, index) in addresses" :key="address + index" class="flex justify-between items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                  <span class="font-mono text-sm text-gray-700 dark:text-gray-300 break-all">{{ address }}</span>
+                  <button
+                    class="shrink-0 text-red-500 hover:text-red-700 dark:hover:text-red-400 text-xs font-medium px-2 py-1 rounded-none hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                    @click="removeAddress(index)"
+                  >
+                    移除
+                  </button>
+                </li>
+              </ul>
+              <div v-else class="py-8 text-center text-gray-400 dark:text-gray-600 text-sm">列表为空</div>
+            </div>
           </template>
 
           <template v-else>
-            <div class="input-row">
-              <input v-model="inputAddress" :placeholder="inputPlaceholder" @keyup.enter="testAddress" aria-label="测试地址输入" />
-              <button class="primary" @click="testAddress">测试</button>
+            <div class="flex flex-col sm:flex-row gap-3 mb-4">
+              <input
+                v-model="inputAddress"
+                :placeholder="inputPlaceholder"
+                @keyup.enter="testAddress"
+                class="flex-1 px-3 py-2.5 rounded-none border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 text-sm placeholder-gray-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all shadow-sm"
+              />
+              <button
+                class="px-5 py-2.5 rounded-none border border-sky-600 bg-sky-600 text-white text-sm font-medium hover:bg-sky-700 transition-colors shadow-sm whitespace-nowrap"
+                @click="testAddress"
+              >
+                执行测试
+              </button>
             </div>
-            <ul v-if="addresses.length" class="address-list">
-              <li v-for="(item, index) in addresses" :key="item.address + index" class="address-item">
-                <span>{{ item.address }}</span>
-                <span :class="['badge', item.result]">{{ item.result }}</span>
-              </li>
-            </ul>
-            <div v-else class="empty">输入地址后点击测试</div>
+
+            <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-none overflow-hidden">
+              <ul v-if="addresses.length" class="divide-y divide-gray-100 dark:divide-gray-800">
+                <li v-for="(item, index) in addresses" :key="item.address + index" class="flex justify-between items-center gap-3 px-4 py-3">
+                  <span class="font-mono text-sm text-gray-700 dark:text-gray-300 break-all">{{ item.address }}</span>
+                  <span
+                    class="px-2 py-0.5 rounded-none text-xs font-bold uppercase tracking-wide"
+                    :class="item.result === 'block' ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300' : 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'"
+                  >
+                    {{ item.result }}
+                  </span>
+                </li>
+              </ul>
+              <div v-else class="py-8 text-center text-gray-400 dark:text-gray-600 text-sm">输入邮箱地址后点击测试</div>
+            </div>
           </template>
         </div>
       </section>
 
-      <section v-if="func === 'sendmail'" class="panel">
-        <header class="panel__header">
-          <button class="panel__title" :class="{ active: menuOpen }" type="button" @click="toggleMenu">发送邮件</button>
+      <!-- ==================== 发送邮件面板 ==================== -->
+      <section v-if="func === 'sendmail'" class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-none shadow-sm overflow-hidden">
+        <header class="flex justify-between items-center px-4 py-3 border-b border-gray-100 dark:border-gray-800 relative">
+          <button
+            class="flex items-center gap-2 text-lg font-semibold text-gray-800 dark:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 px-3 py-1.5 rounded-none transition-colors"
+            @click="toggleMenu"
+          >
+            发送邮件
+          </button>
           <transition name="panel-menu">
-            <div v-if="menuOpen" class="panel__menu">
-              <button v-for="item in menuItems" :key="item.value" :class="{ active: func === item.value }" @click="switchPage(item.value)">{{ item.label }}</button>
+            <div v-if="menuOpen" class="absolute top-full left-4 mt-2 w-40 py-1 rounded-none border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl z-50 flex flex-col">
+              <button
+                v-for="item in menuItems"
+                :key="item.value"
+                class="w-full text-left px-4 py-2 text-sm transition-colors"
+                :class="func === item.value ? 'bg-sky-50 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'"
+                @click="switchPage(item.value)"
+              >
+                {{ item.label }}
+              </button>
             </div>
           </transition>
         </header>
-        <div class="panel__body">
-          <p v-if="tipMessage" :class="['tip', { error: tipMessage.startsWith('ERROR') }]">{{ tipMessage }}</p>
-          <div class="input-row">
-            <label class="form-label">发件人</label>
-            <input type="email" v-model="sendMail.from" placeholder="sender@example.com" aria-label="发件人" />
+
+        <div class="p-4 sm:p-5 space-y-4">
+          <div
+            v-if="tipMessage"
+            :class="['px-4 py-3 rounded-none text-sm', tipMessage.startsWith('ERROR') ? 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300' : 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400']"
+          >
+            {{ tipMessage }}
           </div>
-          <div class="input-row">
-            <label class="form-label">收件人</label>
-            <input type="email" v-model="sendMail.to" placeholder="recipient@example.com" aria-label="收件人" />
+
+          <div class="space-y-4">
+            <div class="flex flex-col sm:flex-row gap-2 sm:items-center">
+              <label class="w-20 text-sm text-gray-500 font-medium">发件人</label>
+              <input
+                type="email"
+                v-model="sendMail.from"
+                placeholder="sender@example.com"
+                class="flex-1 px-3 py-2 rounded-none border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 text-sm focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all shadow-sm placeholder-gray-400"
+              />
+            </div>
+            <div class="flex flex-col sm:flex-row gap-2 sm:items-center">
+              <label class="w-20 text-sm text-gray-500 font-medium">收件人</label>
+              <input
+                type="email"
+                v-model="sendMail.to"
+                placeholder="recipient@example.com"
+                class="flex-1 px-3 py-2 rounded-none border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 text-sm focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all shadow-sm placeholder-gray-400"
+              />
+            </div>
+            <div class="flex flex-col sm:flex-row gap-2 sm:items-center">
+              <label class="w-20 text-sm text-gray-500 font-medium">标题</label>
+              <input
+                type="text"
+                v-model="sendMail.subject"
+                placeholder="邮件标题"
+                class="flex-1 px-3 py-2 rounded-none border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 text-sm focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all shadow-sm placeholder-gray-400"
+              />
+            </div>
+            <div class="flex flex-col sm:flex-row gap-2 items-start">
+              <label class="w-20 pt-2 text-sm text-gray-500 font-medium">正文</label>
+              <textarea
+                v-model="sendMail.text"
+                placeholder="邮件正文"
+                class="flex-1 min-h-[180px] px-3 py-2 rounded-none border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 text-sm focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all shadow-sm placeholder-gray-400 resize-y font-mono leading-relaxed"
+              ></textarea>
+            </div>
           </div>
-          <div class="input-row">
-            <label class="form-label">标题</label>
-            <input type="text" v-model="sendMail.subject" placeholder="邮件标题" aria-label="邮件标题" />
+
+          <div class="pt-4">
+            <button class="w-full py-2.5 rounded-none bg-sky-600 text-white text-sm font-semibold hover:bg-sky-700 transition-colors shadow-sm focus:ring-2 focus:ring-offset-2 focus:ring-sky-500">
+              发送邮件
+            </button>
           </div>
-          <div class="input-row input-row--textarea">
-            <label class="form-label">正文</label>
-            <textarea v-model="sendMail.text" placeholder="邮件正文" aria-label="邮件正文"></textarea>
-          </div>
-          <button class="primary full">发送</button>
         </div>
       </section>
 
-      <button :class="['scroll-top', 'primary', { show: showScrollTop }]" @click="scrollToTop" aria-label="返回顶部">↑ 返回顶部</button>
+      <!-- 返回顶部 -->
+      <button
+        class="fixed right-4 bottom-20 z-40 px-4 py-2 rounded-none bg-sky-600 text-white text-sm font-medium shadow-lg transition-all duration-300 transform hover:-translate-y-1 hover:shadow-xl hover:bg-sky-700"
+        :class="showScrollTop ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible translate-y-4'"
+        @click="scrollToTop"
+      >
+        ↑ 返回顶部
+      </button>
     </div>
 
     <script>
+      // 主题管理
       const applyTheme = (scheme) => {
-        document.documentElement.setAttribute("data-theme", scheme === "dark" ? "dark" : "light");
-      };
-
-      let themeBound = false;
-
-      const bindTelegramTheme = () => {
-        if (themeBound) return true;
-        const tg = window.Telegram?.WebApp;
-        if (!tg) return false;
-        applyTheme(tg.colorScheme);
-        tg.onEvent?.("themeChanged", () => applyTheme(tg.colorScheme));
-        themeBound = true;
-        return true;
-      };
-
-      const initTheme = () => {
-        if (bindTelegramTheme()) return;
-        const media = window.matchMedia("(prefers-color-scheme: dark)");
-        const sync = () => applyTheme(media.matches ? "dark" : "light");
-        sync();
-        if (typeof media.addEventListener === "function") {
-          media.addEventListener("change", sync);
-        } else if (typeof media.addListener === "function") {
-          media.addListener(sync);
+        if (scheme === "dark") {
+          document.documentElement.classList.add("dark");
+          document.documentElement.classList.remove("light");
+        } else {
+          document.documentElement.classList.remove("dark");
+          document.documentElement.classList.add("light");
         }
       };
 
+      const initTheme = () => {
+        // 1. 尝试从 Telegram WebApp 获取
+        const tg = window.Telegram?.WebApp;
+        if (tg) {
+          applyTheme(tg.colorScheme);
+          tg.onEvent?.("themeChanged", () => applyTheme(tg.colorScheme));
+        } else {
+          // 2. 否则跟随系统
+          const media = window.matchMedia("(prefers-color-scheme: dark)");
+          const sync = () => applyTheme(media.matches ? "dark" : "light");
+          sync();
+          media.addEventListener("change", sync);
+        }
+      };
       initTheme();
 
       const safeError = (error) => (error instanceof Error ? error.message : String(error ?? ""));
 
-      const escapeHtml = (value) =>
-        String(value ?? "").replace(
+      // 安全转义
+      const escapeHtml = (text) => {
+        if (!text) return "";
+        return String(text).replace(
           /[&<>"']/g,
-          (char) =>
+          (m) =>
             ({
               "&": "&amp;",
               "<": "&lt;",
               ">": "&gt;",
               '"': "&quot;",
               "'": "&#39;",
-            }[char])
+            })[m]
         );
+      };
 
+      // 链接识别
       const linkify = (text) => {
         if (!text) return "";
-        const pattern = /<((?:https?:\/\/|mailto:)[^>\s]+)>|((?:https?:\/\/|mailto:)[^\s<>"']+)/gi;
-        let lastIndex = 0;
-        let output = "";
-        text.replace(pattern, (match, bracketUrl, plainUrl, index) => {
-          output += escapeHtml(text.slice(lastIndex, index));
-          const url = bracketUrl || plainUrl;
-          if (url) {
-            const safeUrl = escapeHtml(url);
-            const label = bracketUrl ? `&lt;${safeUrl}&gt;` : safeUrl;
-            output += `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${label}</a>`;
-          }
-          lastIndex = index + match.length;
-          return match;
-        });
-        output += escapeHtml(text.slice(lastIndex));
-        return output.replace(/\r?\n/g, "<br />");
+        const urlRegex = /((?:https?:\/\/|mailto:)[^\s<>"']+)/gi;
+        return String(text)
+          .split(urlRegex)
+          .map((part, i) => {
+            if (i % 2 === 0) return escapeHtml(part).replace(/\r?\n/g, "<br />");
+            const cleanUrl = escapeHtml(part).replace(/[.,;!?)]$/, "");
+            const suffix = escapeHtml(part).slice(cleanUrl.length);
+            return `<a href="${cleanUrl}" target="_blank" class="text-sky-600 hover:underline break-all">${cleanUrl}</a>${suffix}`;
+          })
+          .join("");
       };
 
       const matchPattern = (pattern, address) => {
@@ -857,42 +519,36 @@
         if (pattern.toLowerCase() === address.toLowerCase()) return true;
         try {
           return new RegExp(pattern, "i").test(address);
-        } catch (error) {
+        } catch {
           return false;
         }
       };
 
+      // API 客户端
       const createClient = (token) => {
         const client = { token };
         const request = async (path, { method = "GET", body } = {}) => {
           const response = await fetch(path, {
             method,
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `tma ${client.token}`,
-            },
-            body: body !== undefined ? JSON.stringify(body) : undefined,
+            headers: { "Content-Type": "application/json", Authorization: `tma ${client.token}` },
+            body: body ? JSON.stringify(body) : undefined,
           });
           const data = await response.json();
           if (data.error) throw new Error(data.error);
           return data;
         };
-
         return {
-          setToken: (value) => {
-            client.token = value || "";
-          },
+          setToken: (v) => (client.token = v || ""),
           addAddress: (address, type) => request("/api/address/add", { method: "POST", body: { address, type } }),
           removeAddress: (address, type) => request("/api/address/remove", { method: "POST", body: { address, type } }),
           loadAddress: () => request("/api/address/list"),
           clearSummaryCache: () => request("/api/summary/clear", { method: "POST" }),
           deleteMail: (id) => request(`/api/mails/${id}`, { method: "DELETE" }),
           loadMails: (limit, cursor) => {
-            const params = new URLSearchParams();
-            if (limit) params.set("limit", limit);
-            if (cursor) params.set("cursor", cursor);
-            const query = params.toString();
-            return request(`/api/mails/list${query ? `?${query}` : ""}`);
+            const p = new URLSearchParams();
+            if (limit) p.set("limit", limit);
+            if (cursor) p.set("cursor", cursor);
+            return request(`/api/mails/list?${p}`);
           },
           loadMailDetail: (id) => request(`/api/mails/${id}`),
           loadMailSummary: (id) => request(`/api/mails/${id}/summary`),
@@ -934,33 +590,30 @@
           ];
 
           const placeholders = {
-            block: "新建黑名单正则",
-            white: "新建白名单正则",
-            test: "测试地址",
+            block: "输入正则 (如: .*@spam.com)",
+            white: "输入白名单正则",
+            test: "输入邮箱测试匹配",
           };
 
-          const summaryLabels = {
-            cache: "来自缓存",
-            generated: "实时生成",
-            unavailable: "功能未启用",
-            error: "生成失败",
-          };
-
-          const resetSummary = () => {
-            Object.assign(state.summary, { text: "", source: "", loading: false, error: "" });
-          };
-
-          const addresses = computed(() => (state.mode === "test" ? state.testList : state.lists[state.mode] ?? []));
+          const resetSummary = () => Object.assign(state.summary, { text: "", source: "", loading: false, error: "" });
+          const addresses = computed(() => (state.mode === "test" ? state.testList : (state.lists[state.mode] ?? [])));
           const inputPlaceholder = computed(() => placeholders[state.mode] ?? placeholders.block);
-          const summaryLabel = computed(() => summaryLabels[state.summary.source] ?? "");
+          const summaryLabel = computed(() => ({ cache: "缓存", generated: "实时生成", unavailable: "未启用", error: "失败" })[state.summary.source] ?? "");
           const textMailHtml = computed(() => (state.currentMail?.text ? linkify(state.currentMail.text) : ""));
 
-          const formatFullDateTime = (value) => {
-            if (!value) return "-";
-            const date = new Date(value);
-            if (Number.isNaN(date.getTime())) return "-";
-            const pad = (num) => String(num).padStart(2, "0");
-            return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+          const dateFormatter = new Intl.DateTimeFormat("zh-CN", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+            hour12: false,
+          });
+          const formatFullDateTime = (v) => {
+            if (!v) return "-";
+            const date = new Date(v);
+            return isNaN(date.getTime()) ? "-" : dateFormatter.format(date).replace(/\//g, "-");
           };
 
           const syncFrameHeight = () => {
@@ -968,17 +621,13 @@
             if (!frame) return;
             try {
               const doc = frame.contentDocument || frame.contentWindow?.document;
-              if (!doc) return;
-              const height = Math.max(doc.body?.scrollHeight || 0, doc.documentElement?.scrollHeight || 0, 200);
-              frame.style.height = `${height}px`;
-            } catch (error) {
+              if (doc) frame.style.height = `${Math.max(doc.body?.scrollHeight || 0, doc.documentElement?.scrollHeight || 0, 200) + 20}px`;
+            } catch {
               frame.style.height = "500px";
             }
           };
 
-          const toggleMenu = () => {
-            state.menuOpen = !state.menuOpen;
-          };
+          const toggleMenu = () => (state.menuOpen = !state.menuOpen);
 
           const switchPage = (value) => {
             if (value === "mail-detail") return;
@@ -986,17 +635,8 @@
             resetSummary();
             state.currentMail = null;
             state.mailViewMode = "html";
-            if (value === "mails") {
-              state.func = "mails";
-              return;
-            }
-            if (value === "list") {
-              state.func = "list";
-              return;
-            }
-            if (value === "sendmail") {
-              state.func = "sendmail";
-            }
+            state.func = value;
+            if (value === "sendmail") state.tipMessage = "";
           };
 
           const ensureSummary = async () => {
@@ -1012,35 +652,28 @@
               } else {
                 state.summary.text = text;
               }
-            } catch (error) {
-              state.summary.error = safeError(error);
+            } catch (e) {
+              state.summary.error = safeError(e);
               state.summary.source = "error";
-              state.summary.text = "";
             } finally {
               state.summary.loading = false;
             }
           };
 
           const refreshSummary = async () => {
-            if (!state.currentMail) return;
             state.summary.loading = true;
             state.summary.error = "";
-            state.summary.text = "";
-            state.tipMessage = "";
             try {
               const { source, text } = await client.refreshMailSummary(state.currentMail.id);
               state.summary.source = source;
               if (source === "error" || source === "unavailable") {
                 state.summary.error = text;
-                state.summary.text = "";
               } else {
                 state.summary.text = text;
-                state.tipMessage = "AI 摘要已重新生成";
+                state.tipMessage = "AI 摘要已更新";
               }
-            } catch (error) {
-              state.summary.error = safeError(error);
-              state.summary.source = "error";
-              state.summary.text = "";
+            } catch (e) {
+              state.summary.error = safeError(e);
             } finally {
               state.summary.loading = false;
             }
@@ -1048,12 +681,12 @@
 
           const loadAddress = async () => {
             try {
-              const { block = [], white = [] } = await client.loadAddress();
-              state.lists.block = block;
-              state.lists.white = white;
+              const data = await client.loadAddress();
+              state.lists.block = data.block || [];
+              state.lists.white = data.white || [];
               state.tipMessage = "";
-            } catch (error) {
-              state.tipMessage = `ERROR: ${safeError(error)}`;
+            } catch (e) {
+              state.tipMessage = `ERROR: ${safeError(e)}`;
             }
           };
 
@@ -1063,16 +696,15 @@
             if (reset) {
               state.mailList = [];
               state.cursor = null;
-              state.hasMore = false;
             }
             try {
-              const { mails = [], cursor } = await client.loadMails(50, reset ? null : state.cursor);
-              state.mailList.push(...mails);
+              const { mails, cursor } = await client.loadMails(50, reset ? null : state.cursor);
+              state.mailList.push(...(mails || []));
               state.cursor = cursor ?? null;
-              state.hasMore = Boolean(cursor);
+              state.hasMore = !!cursor;
               state.tipMessage = "";
-            } catch (error) {
-              state.tipMessage = `ERROR: ${safeError(error)}`;
+            } catch (e) {
+              state.tipMessage = `ERROR: ${safeError(e)}`;
             } finally {
               state.loading = false;
             }
@@ -1082,19 +714,14 @@
           const refreshMails = () => loadMails(true);
 
           const clearSummaryCache = async () => {
-            if (state.clearingSummaryCache) return;
-            const confirmClear = window.confirm("确定要清除所有 AI 摘要缓存吗？");
-            if (!confirmClear) {
-              return;
-            }
+            if (!confirm("清除所有 AI 摘要缓存？")) return;
             state.clearingSummaryCache = true;
-            state.tipMessage = "";
             try {
-              const { deleted = 0 } = await client.clearSummaryCache();
+              const { deleted } = await client.clearSummaryCache();
+              state.tipMessage = `已清除 ${deleted} 条缓存`;
               resetSummary();
-              state.tipMessage = `已清除 ${deleted} 条 AI 摘要缓存`;
-            } catch (error) {
-              state.tipMessage = `ERROR: ${safeError(error)}`;
+            } catch (e) {
+              state.tipMessage = `ERROR: ${safeError(e)}`;
             } finally {
               state.clearingSummaryCache = false;
             }
@@ -1106,81 +733,59 @@
                 await nextTick();
                 syncFrameHeight();
               }
-              if (mode === "summary" && state.currentMail) {
-                const confirmRefresh = window.confirm("重新生成 AI 摘要？");
-                if (confirmRefresh) {
-                  await refreshSummary();
-                }
-              }
+              if (mode === "summary" && state.currentMail && confirm("重新生成 AI 摘要？")) await refreshSummary();
               return;
             }
             state.mailViewMode = mode;
           };
 
           const viewMail = async (id) => {
-            if (!id) return;
             state.loading = true;
             try {
               state.currentMail = await client.loadMailDetail(id);
               state.func = "mail-detail";
               resetSummary();
-              if (state.currentMail.html) {
-                state.mailViewMode = "html";
-              } else if (state.currentMail.text) {
-                state.mailViewMode = "text";
-              } else {
-                state.mailViewMode = "summary";
-              }
+              state.mailViewMode = state.currentMail.html ? "html" : state.currentMail.text ? "text" : "summary";
               state.tipMessage = "";
-            } catch (error) {
-              state.tipMessage = `ERROR: ${safeError(error)}`;
+              window.scrollTo({ top: 0 });
+            } catch (e) {
+              state.tipMessage = `ERROR: ${safeError(e)}`;
             } finally {
               state.loading = false;
             }
           };
 
           const backToList = () => {
-            resetSummary();
             state.currentMail = null;
-            state.mailViewMode = "html";
             state.func = "mails";
             state.tipMessage = "";
           };
 
           const deleteCurrentMail = async () => {
-            if (!state.currentMail || state.deletingMail) return;
-            const confirmDelete = window.confirm("确定要删除这封邮件吗？");
-            if (!confirmDelete) return;
+            if (!confirm("确定删除？")) return;
             state.deletingMail = true;
-            state.tipMessage = "";
             try {
               await client.deleteMail(state.currentMail.id);
-              const index = state.mailList.findIndex((mail) => mail.id === state.currentMail?.id);
-              if (index !== -1) {
-                state.mailList.splice(index, 1);
-              }
+              state.mailList = state.mailList.filter((m) => m.id !== state.currentMail.id);
               backToList();
-              await loadMails(true);
               state.tipMessage = "邮件已删除";
-            } catch (error) {
-              state.tipMessage = `ERROR: ${safeError(error)}`;
+            } catch (e) {
+              state.tipMessage = `ERROR: ${safeError(e)}`;
             } finally {
               state.deletingMail = false;
             }
           };
 
           const addAddress = async () => {
-            const address = state.inputAddress.trim();
-            if (!address) return;
+            const val = state.inputAddress.trim();
+            if (!val) return;
             try {
-              await client.addAddress(address, state.mode);
-              if (state.mode !== "test") {
-                state.lists[state.mode]?.push(address);
-              }
+              await client.addAddress(val, state.mode);
+              if (state.mode !== "test") state.lists[state.mode]?.push(val);
               state.inputAddress = "";
               state.tipMessage = "";
-            } catch (error) {
-              state.tipMessage = `ERROR: ${safeError(error)}`;
+            } catch (e) {
+              state.tipMessage = `ERROR: ${safeError(e)}`;
             }
           };
 
@@ -1191,31 +796,31 @@
             try {
               await client.removeAddress(target, state.mode);
               list.splice(index, 1);
-              state.tipMessage = "";
-            } catch (error) {
-              state.tipMessage = `ERROR: ${safeError(error)}`;
+            } catch (e) {
+              state.tipMessage = `ERROR: ${safeError(e)}`;
             }
           };
 
           const testAddress = () => {
-            const address = state.inputAddress.trim();
-            if (!address) {
+            const val = state.inputAddress.trim();
+            if (!val) {
               state.testList = [];
               return;
             }
-            const results = [];
-            for (const pattern of state.lists.block) {
-              if (matchPattern(pattern, address)) results.push({ address: pattern, result: "block" });
-            }
-            for (const pattern of state.lists.white) {
-              if (matchPattern(pattern, address)) results.push({ address: pattern, result: "white" });
-            }
-            state.testList = results;
+            const res = [];
+            state.lists.block.forEach((p) => matchPattern(p, val) && res.push({ address: p, result: "block" }));
+            state.lists.white.forEach((p) => matchPattern(p, val) && res.push({ address: p, result: "white" }));
+            state.testList = res;
           };
 
           const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
+          let scrollTimer;
           const handleScroll = () => {
-            state.showScrollTop = window.scrollY > 320 && state.func === "mail-detail";
+            if (scrollTimer) return;
+            scrollTimer = setTimeout(() => {
+              state.showScrollTop = window.scrollY > 300;
+              scrollTimer = null;
+            }, 100);
           };
 
           watch(
@@ -1225,52 +830,37 @@
               if (state.mode === "test") state.testList = [];
             }
           );
-
           watch(
             () => state.mailViewMode,
-            async (mode) => {
-              if (mode === "html") {
+            async (m) => {
+              if (m === "html") {
                 await nextTick();
                 syncFrameHeight();
-              } else if (mode === "summary") {
-                ensureSummary();
-              }
+              } else if (m === "summary") ensureSummary();
             }
           );
-
           watch(
             () => state.func,
-            (value) => {
+            (v) => {
               state.menuOpen = false;
-              handleScroll();
-              if (value === "list" && !state.lists.block.length && !state.lists.white.length) {
-                loadAddress();
-              }
-              if (value === "mails" && !state.mailList.length) {
-                loadMails(true);
-              }
+              window.scrollTo({ top: 0 });
+              state.showScrollTop = false;
+              if (v === "list" && !state.lists.block.length) loadAddress();
+              if (v === "mails" && !state.mailList.length) loadMails(true);
             }
           );
 
           onMounted(async () => {
-            handleScroll();
             window.addEventListener("scroll", handleScroll, { passive: true });
-
-            bindTelegramTheme();
             const tg = window.Telegram?.WebApp;
-            client.setToken(tg?.initData ?? "");
-            tg?.ready?.();
-
-            if (state.func === "mails") {
-              await loadMails(true);
-            } else if (state.func === "list") {
-              await loadAddress();
+            if (tg) {
+              client.setToken(tg.initData);
+              tg.ready?.();
             }
+            state.func === "mails" ? loadMails(true) : state.func === "list" && loadAddress();
           });
 
-          onUnmounted(() => {
-            window.removeEventListener("scroll", handleScroll);
-          });
+          onUnmounted(() => window.removeEventListener("scroll", handleScroll));
 
           return {
             ...toRefs(state),
