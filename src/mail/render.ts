@@ -2,7 +2,7 @@ import type * as Telegram from "telegram-bot-api-types";
 import type { EmailCache, Environment } from "../types";
 import { Dao } from "../db";
 import { checkAddressStatus } from "./check";
-import { sendOpenAIRequest } from "./openai";
+import { summarizedByOpenAI, summarizedByWorkerAI } from "./summarization";
 
 export interface MailSummaryResult {
   text: string;
@@ -35,7 +35,7 @@ function escapeMarkdownV2(text: string): string {
 export type EmailRender = (mail: EmailCache, env: Environment) => Promise<EmailDetailParams>;
 
 export async function renderEmailListMode(mail: EmailCache, env: Environment): Promise<EmailDetailParams> {
-  const { DEBUG, OPENAI_API_KEY, DOMAIN } = env;
+  const { DEBUG, OPENAI_API_KEY, WORKERS_AI_MODEL, AI, DOMAIN } = env;
   const subject = mail.subject && mail.subject.length > 0 ? mail.subject : "无标题";
   const text = `*${escapeMarkdownV2(subject)}*\n\n────────────\nFrom: \`${escapeMarkdownV2(mail.from)}\`\nTo: \`${escapeMarkdownV2(mail.to)}\``;
   const keyboard: Telegram.InlineKeyboardButton[] = [
@@ -44,7 +44,7 @@ export async function renderEmailListMode(mail: EmailCache, env: Environment): P
       callback_data: `p:${mail.id}`,
     },
   ];
-  if (OPENAI_API_KEY) {
+  if ((AI && WORKERS_AI_MODEL) || OPENAI_API_KEY) {
     keyboard.push({
       text: "AI 摘要",
       callback_data: `s:${mail.id}`,
@@ -134,7 +134,16 @@ function extractMailContent(mail: EmailCache): string {
 }
 
 export async function getMailSummary(mail: EmailCache, env: Environment): Promise<MailSummaryResult> {
-  const { OPENAI_API_KEY: key, OPENAI_COMPLETIONS_API: endpointRaw, OPENAI_CHAT_MODEL: modelRaw, SUMMARY_TARGET_LANG: targetLangRaw, MAIL_TTL: mailTtlRaw, DB } = env;
+  const {
+    OPENAI_API_KEY: key,
+    OPENAI_COMPLETIONS_API: endpointRaw,
+    OPENAI_CHAT_MODEL: modelRaw,
+    SUMMARY_TARGET_LANG: targetLangRaw,
+    MAIL_TTL: mailTtlRaw,
+    WORKERS_AI_MODEL,
+    AI,
+    DB,
+  } = env;
   const endpoint = endpointRaw || "https://api.openai.com/v1/chat/completions";
   const model = modelRaw || "gpt-4o-mini";
   const targetLang = (targetLangRaw || "english").trim();
@@ -152,13 +161,6 @@ export async function getMailSummary(mail: EmailCache, env: Environment): Promis
     }
 
     const content = extractMailContent(mail);
-    if (!key) {
-      return {
-        text: "AI 摘要功能未启用",
-        source: "unavailable",
-      };
-    }
-
     if (!content) {
       return {
         text: "无可摘要内容",
@@ -167,7 +169,18 @@ export async function getMailSummary(mail: EmailCache, env: Environment): Promis
     }
 
     const prompt = `使用七十个词以内的简洁语言，保留关键信息，用 ${targetLang} 语言，链接不算进字数，总结内容可以分行显示，若无实际内容可以总结，返回简短后的原文，邮件内容如下\n\n${content}`;
-    const summary = (await sendOpenAIRequest(key, endpoint, model, prompt)).trim();
+
+    let summary = "";
+    if (AI && WORKERS_AI_MODEL) {
+      summary = (await summarizedByWorkerAI(AI, WORKERS_AI_MODEL, prompt)).trim();
+    } else if (key) {
+      summary = (await summarizedByOpenAI(key, endpoint, model, prompt)).trim();
+    } else {
+      return {
+        text: "AI 摘要功能未启用",
+        source: "unavailable",
+      };
+    }
 
     if (summary) {
       await dao.saveMailSummary(mail.id, cacheLang, summary, ttl);

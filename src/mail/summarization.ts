@@ -1,4 +1,31 @@
-export async function sendOpenAIRequest(key: string, endpoint: string, model: string, prompt: string): Promise<string> {
+import type { Ai } from "@cloudflare/workers-types";
+
+interface WorkersAiResponse {
+  response?: string;
+}
+
+export async function summarizedByWorkerAI(ai: Ai, model: string, prompt: string): Promise<string> {
+  const result = await ai.run(model as any, {
+    messages: [
+      {
+        role: "system",
+        content: "你是一位专业的电子邮件摘要助手，负责完美的将各个类别的电子邮件进行摘要总结，你会完美的遵循格式规范，比如中英文之间空格，链接与文本之间空格。",
+      },
+      {
+        role: "user",
+        content: prompt,
+      },
+    ],
+  }) as WorkersAiResponse | string;
+
+  if (typeof result === "string") {
+    return result;
+  }
+
+  return result?.response ?? "";
+}
+
+export async function summarizedByOpenAI(key: string, endpoint: string, model: string, prompt: string): Promise<string> {
   if (!key || !endpoint || !model) {
     return "Sorry, the OpenAI API is not configured properly.";
   }
