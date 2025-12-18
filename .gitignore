@@ -150,3 +150,7 @@ wrangler.jsonc
 .wrangler
 example
 build
+
+# Editor
+.vscode
+.kiro

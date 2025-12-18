@@ -5,7 +5,7 @@ interface WorkersAiResponse {
 }
 
 export async function summarizedByWorkerAI(ai: Ai, model: string, prompt: string): Promise<string> {
-  const result = await ai.run(model as any, {
+  const result = (await ai.run(model as any, {
     messages: [
       {
         role: "system",
@@ -16,7 +16,7 @@ export async function summarizedByWorkerAI(ai: Ai, model: string, prompt: string
         content: prompt,
       },
     ],
-  }) as WorkersAiResponse | string;
+  })) as WorkersAiResponse | string;
 
   if (typeof result === "string") {
     return result;
@@ -55,4 +55,46 @@ export async function summarizedByOpenAI(key: string, endpoint: string, model: s
   }
   const body = (await resp.json()) as any;
   return body?.choices?.[0]?.message?.content || "";
+}
+
+interface OllamaChatResponse {
+  model: string;
+  created_at: string;
+  message: {
+    role: "assistant";
+    content: string;
+  };
+  done: boolean;
+}
+
+export async function summarizedByOllama(endpoint: string, model: string, prompt: string, apiKey?: string): Promise<string> {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  if (apiKey) {
+    headers.Authorization = `Bearer ${apiKey}`;
+  }
+  const resp = await fetch(endpoint, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({
+      model,
+      messages: [
+        {
+          role: "system",
+          content: "你是一位专业的电子邮件摘要助手，负责完美的将各个类别的电子邮件进行摘要总结，你会完美的遵循格式规范，比如中英文之间空格，链接与文本之间空格。",
+        },
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+      stream: false,
+    }),
+  });
+  if (!resp.ok) {
+    throw new Error(`Ollama API request failed: ${resp.status}`);
+  }
+  const body = (await resp.json()) as OllamaChatResponse;
+  return body?.message?.content || "";
 }

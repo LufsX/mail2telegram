@@ -49,6 +49,10 @@ export interface Environment {
   SUMMARY_TARGET_LANG?: string;
   GUARDIAN_MODE?: string;
   RESEND_API_KEY?: string;
+  OLLAMA_API_ENDPOINT?: string;
+  OLLAMA_MODEL?: string;
+  OLLAMA_API_KEY?: string;
+  AUTO_SUMMARY?: string;
   DB: KVNamespace;
   AI?: Ai;
   DEBUG?: string;

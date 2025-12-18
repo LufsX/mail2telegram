@@ -2,7 +2,7 @@ import type * as Telegram from "telegram-bot-api-types";
 import type { EmailCache, Environment } from "../types";
 import { Dao } from "../db";
 import { checkAddressStatus } from "./check";
-import { summarizedByOpenAI, summarizedByWorkerAI } from "./summarization";
+import { summarizedByOllama, summarizedByOpenAI, summarizedByWorkerAI } from "./summarization";
 
 export interface MailSummaryResult {
   text: string;
@@ -34,7 +34,7 @@ function escapeMarkdownV2(text: string): string {
 export type EmailRender = (mail: EmailCache, env: Environment) => Promise<EmailDetailParams>;
 
 export async function renderEmailListMode(mail: EmailCache, env: Environment): Promise<EmailDetailParams> {
-  const { DEBUG, OPENAI_API_KEY, WORKERS_AI_MODEL, AI, DOMAIN } = env;
+  const { DEBUG, OPENAI_API_KEY, WORKERS_AI_MODEL, AI, DOMAIN, OLLAMA_API_ENDPOINT } = env;
   const subject = mail.subject && mail.subject.length > 0 ? mail.subject : "无标题";
   const text = `*${escapeMarkdownV2(subject)}*\n\n────────────\nFrom: \`${escapeMarkdownV2(mail.from)}\`\nTo: \`${escapeMarkdownV2(mail.to)}\``;
   const keyboard: Telegram.InlineKeyboardButton[] = [
@@ -43,7 +43,7 @@ export async function renderEmailListMode(mail: EmailCache, env: Environment): P
       callback_data: `p:${mail.id}`,
     },
   ];
-  if ((AI && WORKERS_AI_MODEL) || OPENAI_API_KEY) {
+  if ((AI && WORKERS_AI_MODEL) || OPENAI_API_KEY || OLLAMA_API_ENDPOINT) {
     keyboard.push({
       text: "AI 摘要",
       callback_data: `s:${mail.id}`,
@@ -133,7 +133,19 @@ function extractMailContent(mail: EmailCache): string {
 }
 
 export async function getMailSummary(mail: EmailCache, env: Environment): Promise<MailSummaryResult> {
-  const { OPENAI_API_KEY: key, OPENAI_COMPLETIONS_API: endpointRaw, OPENAI_CHAT_MODEL: modelRaw, SUMMARY_TARGET_LANG: targetLangRaw, MAIL_TTL: mailTtlRaw, WORKERS_AI_MODEL, AI, DB } = env;
+  const {
+    OPENAI_API_KEY: key,
+    OPENAI_COMPLETIONS_API: endpointRaw,
+    OPENAI_CHAT_MODEL: modelRaw,
+    SUMMARY_TARGET_LANG: targetLangRaw,
+    MAIL_TTL: mailTtlRaw,
+    WORKERS_AI_MODEL,
+    AI,
+    DB,
+    OLLAMA_API_ENDPOINT,
+    OLLAMA_MODEL,
+    OLLAMA_API_KEY,
+  } = env;
   const endpoint = endpointRaw || "https://api.openai.com/v1/chat/completions";
   const model = modelRaw || "gpt-4o-mini";
   const targetLang = (targetLangRaw || "english").trim();
@@ -165,6 +177,9 @@ export async function getMailSummary(mail: EmailCache, env: Environment): Promis
       summary = (await summarizedByWorkerAI(AI, WORKERS_AI_MODEL, prompt)).trim();
     } else if (key) {
       summary = (await summarizedByOpenAI(key, endpoint, model, prompt)).trim();
+    } else if (OLLAMA_API_ENDPOINT) {
+      const ollamaModel = OLLAMA_MODEL || "llama3.2";
+      summary = (await summarizedByOllama(OLLAMA_API_ENDPOINT, ollamaModel, prompt, OLLAMA_API_KEY)).trim();
     } else {
       return {
         text: "AI 摘要功能未启用",

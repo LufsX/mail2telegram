@@ -1,7 +1,7 @@
 import type { ForwardableEmailMessage } from "@cloudflare/workers-types";
 import type { BlockPolicy, EmailCache, Environment } from "../../types";
 import { Dao } from "../../db";
-import { isMessageBlock, parseEmail, renderEmailListMode } from "../../mail";
+import { getMailSummary, isMessageBlock, parseEmail, renderEmailListMode } from "../../mail";
 import { createTelegramBotAPI } from "../../telegram";
 
 export async function sendMailToTelegram(mail: EmailCache, env: Environment): Promise<number[]> {
@@ -71,6 +71,14 @@ export async function emailHandler(message: ForwardableEmailMessage, env: Enviro
       const msgIDs = await sendMailToTelegram(mail, env);
       for (const msgID of msgIDs) {
         await dao.saveTelegramIDToMailID(`${msgID}`, mail.id, ttl);
+      }
+      // Auto-generate summary if enabled
+      if (env.AUTO_SUMMARY === "true") {
+        try {
+          await getMailSummary(mail, env);
+        } catch (e) {
+          console.error("Auto summary failed:", e);
+        }
       }
     }
     if (isGuardian) {
