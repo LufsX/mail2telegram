@@ -340,14 +340,13 @@
               <input
                 v-model="inputAddress"
                 :placeholder="inputPlaceholder"
-                @keyup.enter="testAddress"
                 class="flex-1 px-3 py-2.5 rounded-none border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 text-sm placeholder-gray-400 focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all shadow-sm"
               />
               <button
                 class="px-5 py-2.5 rounded-none border border-sky-600 bg-sky-600 text-white text-sm font-medium hover:bg-sky-700 transition-colors shadow-sm whitespace-nowrap"
                 @click="testAddress"
               >
-                执行测试
+                手动测试
               </button>
             </div>
 
@@ -363,7 +362,7 @@
                   </span>
                 </li>
               </ul>
-              <div v-else class="py-8 text-center text-gray-400 dark:text-gray-600 text-sm">输入邮箱地址后点击测试</div>
+              <div v-else class="py-8 text-center text-gray-400 dark:text-gray-600 text-sm">请输入邮箱地址进行实时测试</div>
             </div>
           </template>
         </div>
@@ -503,7 +502,7 @@
               ">": "&gt;",
               '"': "&quot;",
               "'": "&#39;",
-            })[m]
+            })[m],
         );
       };
 
@@ -524,9 +523,13 @@
 
       const matchPattern = (pattern, address) => {
         if (!pattern || !address) return false;
-        if (pattern.toLowerCase() === address.toLowerCase()) return true;
+        const patternTrimmed = pattern.trim();
+        const addressTrimmed = address.trim();
+        if (patternTrimmed.toLowerCase() === addressTrimmed.toLowerCase()) {
+          return true;
+        }
         try {
-          return new RegExp(pattern, "i").test(address);
+          return new RegExp(patternTrimmed, "i").test(addressTrimmed);
         } catch {
           return false;
         }
@@ -816,9 +819,29 @@
               return;
             }
             const res = [];
-            state.lists.block.forEach((p) => matchPattern(p, val) && res.push({ address: p, result: "block" }));
-            state.lists.white.forEach((p) => matchPattern(p, val) && res.push({ address: p, result: "white" }));
+            state.lists.block.forEach((p) => {
+              if (matchPattern(p, val)) {
+                res.push({ address: p, result: "block" });
+              }
+            });
+            state.lists.white.forEach((p) => {
+              if (matchPattern(p, val)) {
+                res.push({ address: p, result: "white" });
+              }
+            });
             state.testList = res;
+
+            if (res.length === 0) {
+              state.tipMessage = `地址 "${val}" 未匹配任何规则`;
+            } else {
+              const blockCount = res.filter((r) => r.result === "block").length;
+              const whiteCount = res.filter((r) => r.result === "white").length;
+              if (whiteCount > 0) {
+                state.tipMessage = `地址 "${val}" 匹配 ${whiteCount} 个白名单规则${blockCount > 0 ? ` 和 ${blockCount} 个黑名单规则` : ""} (白名单优先)`;
+              } else {
+                state.tipMessage = `地址 "${val}" 匹配 ${blockCount} 个黑名单规则`;
+              }
+            }
           };
 
           const scrollToTop = () => window.scrollTo({ top: 0, behavior: "smooth" });
@@ -836,7 +859,16 @@
             () => {
               state.inputAddress = "";
               if (state.mode === "test") state.testList = [];
-            }
+            },
+          );
+
+          watch(
+            () => state.inputAddress,
+            (newVal) => {
+              if (state.mode === "test") {
+                testAddress();
+              }
+            },
           );
           watch(
             () => state.mailViewMode,
@@ -845,7 +877,7 @@
                 await nextTick();
                 syncFrameHeight();
               } else if (m === "summary") ensureSummary();
-            }
+            },
           );
           watch(
             () => state.func,
@@ -855,7 +887,7 @@
               state.showScrollTop = false;
               if (v === "list" && !state.lists.block.length) loadAddress();
               if (v === "mails" && !state.mailList.length) loadMails(true);
-            }
+            },
           );
 
           onMounted(async () => {
